@@ -1,0 +1,15 @@
+To check how fast is your resolving speed, download "namebench" utility from
+  https://code.google.com/archive/p/namebench/downloads
+  
+Install it, open it and run it. The binary "namebench.exe" can be found in "%temp%"
+directory.
+
+Click on "Start Benchmark" and wait until it finishes.
+
+After a while, namebench will generate a HTML file with benchmark result which 
+is automatically opened by the browser. Then make changes accordingly.
+
+Additionaly you can check for "DNS leaks", if your DNS provider forwards resolving
+information to 3rd parties. Go to https://dnsleaktest.com/ and select either standard
+or extended test. If leaks had been detected, you can eventually set the DNS addresses
+to other DNS provider or set up an OpenVPN client/server.
