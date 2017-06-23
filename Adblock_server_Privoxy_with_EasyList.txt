@@ -1,0 +1,62 @@
+  sudo apt-get update
+  sudo apt-get upgrade
+  sudo apt-get install privoxy
+  sudo nano /etc/privoxy/config
+	Edit line "listen-address" to your IP and port; usually your local IP address
+	standard port
+
+Save and exit. Restart privoxy:
+
+  sudo service privoxy restart
+  
+Now we will check, if privoxy works.
+
+Now set the proxy in your operating system / browser. After that you can enjoy
+browsing almost without ads. Some ad will show, some pop-ups might show, the 
+youtube ads are not blocked, but the vast majority of annoying ads will be gone
+in entire network.
+	
+Now we're gonna import EasyList into privoxy for additional list of advertisment
+domains and URLs.
+It is not officialy supported and some utilities to provide the conversion are needed. 
+But on the site
+https://projects.zubr.me/wiki/adblock2privoxyDownloads
+is an up-to-date EasyList, ready to be imported to privoxy. As I found out,
+it is pretty sufficient. I am using only the action file, beacuse the filter file
+slows down the browsing too much. Therefore I will not cover the filter file
+setup.
+
+You can also use adblock2privoxy utility to automatically update and convert
+EasyList to privoxy. Link: https://projects.zubr.me/wiki/adblock2privoxy. Or even
+better, you can download updated privoxy ready EasyList from
+https://projects.zubr.me/wiki/adblock2privoxyDownloads and then run it through
+adblock2privoxy. Debian "deb" package should be listed on the same site as well.
+
+  cd ~
+  wget https://s3.amazonaws.com/ab2p/adblock2privoxy_1.4.2_amd64.debian8.deb
+  sudo dpkg -i adblock2privoxy_1.4.2_amd64.debian8.deb
+  wget https://s3.amazonaws.com/ab2p/ab2p.easylist.7z
+  sudo apt-get install p7zip-full
+  7z x ab2p.easylist.7z
+  sudo mv /etc/privoxy/user.action user.action.original
+  sudo cp ./ab2p.easylist/privoxy/* /etc/privoxy
+  sudo nano /etc/privoxy/config
+  
+  search for "actionsfile" (Ctrl+W) . add there these lines:
+  
+actionsfile ab2p.system.action
+actionsfile ab2p.action
+filterfile ab2p.system.filter
+filterfile ab2p.filter
+  
+Save it and exit. Then restart privoxy:
+
+  sudo service privoxy restart
+  
+Enjoy server wide adblocking with adblock plus level of support.
+  
+For more information, check out the site https://projects.zubr.me/wiki/adblock2privoxy
+
+Sources:
+https://www.youtube.com/watch?v=AaQYI1GbMEc
+https://siderite.blogspot.com/2013/05/adblock-easylist-filter-and-action.html
