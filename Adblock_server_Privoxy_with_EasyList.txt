@@ -46,11 +46,11 @@ adblock2privoxy. Debian "deb" package should be listed on the same site as well.
   sudo cp ./ab2p.easylist/privoxy/* /etc/privoxy
   sudo nano /etc/privoxy/config
   
-search for "actionsfile" (Ctrl+W) . add there these lines:
+Search for "actionsfile" (Ctrl+W). add there these lines:
   actionsfile ab2p.system.action
   actionsfile ab2p.action
 
-search for "actionsfile" (Ctrl+W) . add there these lines:
+Search for "filterfile" (Ctrl+W). add there these lines:
   filterfile ab2p.system.filter
   filterfile ab2p.filter
   
@@ -75,7 +75,7 @@ Edit this file:
 Replace it's contents with this (!! REPLACE "192.168.0.2" in "ServerName" attribute
 with your domain name or IP address of the web server i.e. local IP address of the 
 computer!!) (!! REPLACE the path in "DocumentRoot" attribute with the path, where 
-you have saved your web folder with CSS files):
+you have saved your web folder with CSS files!!):
 
 <VirtualHost *:80>
       #ab2p css domain name (optional, should be equal to --domainCSS parameter)
@@ -127,3 +127,4 @@ https://projects.zubr.me/wiki/adblock2privoxy
 Sources:
 https://www.youtube.com/watch?v=AaQYI1GbMEc
 https://siderite.blogspot.com/2013/05/adblock-easylist-filter-and-action.html
+https://askubuntu.com/questions/64454/how-do-i-enable-the-mod-rewrite-apache-module-for-ubuntu-11-04
