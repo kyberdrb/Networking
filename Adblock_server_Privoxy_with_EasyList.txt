@@ -292,3 +292,4 @@ Sources:
 https://www.youtube.com/watch?v=AaQYI1GbMEc
 https://siderite.blogspot.com/2013/05/adblock-easylist-filter-and-action.html
 https://askubuntu.com/questions/64454/how-do-i-enable-the-mod-rewrite-apache-module-for-ubuntu-11-04
+https://www.privoxy.org/faq/configuration.html#WHITELISTS
