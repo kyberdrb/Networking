@@ -290,6 +290,27 @@ Privoxy whitelisting:
     sudo service privoxy restart
   
   The page should now load faster.
+  
+
+========================================================================================
+PART 5 - Start Privoxy and Pi-hole after login (for Arch Linux)
+========================================================================================  
+In Arch, as opposed from Debian, Privoxy doesn't start automatically after reboot.
+Therefore I decided to run Privoxy natively and Pi-hole in VirtalBox. I couldn't run
+Privoxy and Pi-hole natively at the same time, beacuse it would conflict. I tried
+to enable Privoxy after startup using systemctl (sudo systemctl enable privoxy), but
+it always failed to run i.e. I wasn't able to browse Internet. FBeacuse of that,
+Privoxy and Pi-hole virtual machine are started after login by the desktop enviroment
+(in my case LXDE).
+
+  nano ~/.config/lxsession/LXDE/autostart
+
+Add these lines
+
+  @VBoxManage startvm pihole --type headless
+  /usr/bin/privoxy --no-daemon /home/htpc/privoxy/config
+
+Save and exit. Reboot and check if you have Internet connectivity.
 
 ========================================================================================
 Sources:
