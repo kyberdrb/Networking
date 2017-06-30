@@ -3,7 +3,8 @@ The Ultimate Network-wide Adblocker
 I run Privoxy and Pi-hole as two seperate virtual machines in VirtualBox.
 Together they can block every possible advertisment but the Youtube ones.
 Both machines are running under Ubuntu Server 16.04.2 x64, with bridged
-networking adapter (promiscuous mode "Allow all") and 256 MB RAM.
+networking adapter (promiscuous mode "Allow all") and 256 MB RAM for Privoxy
+and 512 MB RAM for Pi-hole.
 
 ========================================================================================
 PART 1 - Privoxy
@@ -308,13 +309,14 @@ Privoxy and Pi-hole virtual machine are started after login by the desktop envir
 Add these lines
 
   @VBoxManage startvm pihole --type headless
+  @/home/htpc/start_privoxy.sh
   
 Unfortunately I couldn't figure out, why the Privoxy always fails to start after boot
 or login. But when I ran it manually, it started up fine. So I had to create a script
 that the user has to execute before he will be able to connect to the Internet.
 
-  cd ~/Desktop
-  nano Internet.sh
+  cd
+  nano start_privoxy.sh
   
   #!/bin/bash
   privoxy --no-daemon /home/htpc/privoxy/config
