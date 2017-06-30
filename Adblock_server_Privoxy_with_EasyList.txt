@@ -308,7 +308,7 @@ Privoxy and Pi-hole virtual machine are started after login by the desktop envir
 Add these lines
 
   @VBoxManage startvm pihole --type headless
-  /usr/bin/privoxy --no-daemon /home/htpc/privoxy/config
+  @sleep 20 && privoxy --no-daemon /home/htpc/privoxy/config
 
 Save and exit. Reboot and check if you have Internet connectivity.
 
