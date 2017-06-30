@@ -308,9 +308,30 @@ Privoxy and Pi-hole virtual machine are started after login by the desktop envir
 Add these lines
 
   @VBoxManage startvm pihole --type headless
-  @sleep 20 && privoxy --no-daemon /home/htpc/privoxy/config
+  
+Unfortunately I couldn't figure out, why the Privoxy always fails to start after boot
+or login. But when I ran it manually, it started up fine. So I had to create a script
+that the user has to execute before he will be able to connect to the Internet.
 
-Save and exit. Reboot and check if you have Internet connectivity.
+  cd ~/Desktop
+  nano Internet.sh
+  
+  #!/bin/bash
+  privoxy --no-daemon /home/htpc/privoxy/config
+
+Save and exit. Edit permissions
+
+  chmod +x Internet.sh
+  
+Copy contents of /etc/privoxy to ~/privoxy
+
+  mkdir privoxy
+  cd privoxy
+  sudo cp -R /etc/privoxy/* .
+  cd ..
+  sudo chown -R htpc:users privoxy/
+  
+Reboot, run the script after logging in and check if you have Internet connectivity.
 
 ========================================================================================
 Sources:
