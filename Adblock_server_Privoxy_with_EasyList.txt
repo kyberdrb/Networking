@@ -1,10 +1,9 @@
 The Ultimate Network-wide Adblocker
 
-I run Privoxy and Pi-hole as two seperate virtual machines in VirtualBox.
+I run Privoxy natively on Arch Linux and Pi-hole as a virtual machine in VirtualBox.
 Together they can block every possible advertisment but the Youtube ones.
-Both machines are running under Ubuntu Server 16.04.2 x64, with bridged
-networking adapter (promiscuous mode "Allow all") and 256 MB RAM for Privoxy
-and 512 MB RAM for Pi-hole.
+Pi-hole is running under Ubuntu Server 16.04.2 x64, with bridged
+networking adapter (promiscuous mode "Allow all") and 512 MB RAM.
 
 ========================================================================================
 PART 1 - Privoxy
@@ -172,7 +171,8 @@ https://projects.zubr.me/wiki/adblock2privoxy
 PART 2 - Pi-hole
 ========================================================================================
 
-After installing Debian based distro, install Pi-hole with the official script:
+After installing Debian based distro (latest stable Debian version is recommentded), 
+install Pi-hole with the official script:
 
   cd
   wget https://install.pi-hole.net
@@ -332,7 +332,9 @@ Copy contents of /etc/privoxy to ~/privoxy
   cd ..
   sudo chown -R htpc:users privoxy/
   
-Reboot, run the script after logging in and check if you have Internet connectivity.
+Reboot, run the script after logging in. In LXDE double click the script and choose
+"Execute in terminal". Then move the terminal windows to another workspace.
+Check if you have Internet connectivity.
 
 ========================================================================================
 Sources:
