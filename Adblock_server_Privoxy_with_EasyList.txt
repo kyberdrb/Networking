@@ -43,6 +43,10 @@ iface enp0s3 inet static
   
 In this file, edit line "listen-address" to your IP and port; usually your 
   local IP address (which we already set in /etc/network/interfaces) and standard port (8118).
+  
+Run it after boot
+
+  sudo systemctl enable privoxy
 
 Save and exit. Reboot the machine (beacuse we set a static IP address and restarting the
 networking service doesn't get rid of the DHCP address):
