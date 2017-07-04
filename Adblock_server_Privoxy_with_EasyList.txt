@@ -74,16 +74,23 @@ better, you can download updated privoxy ready EasyList from
 https://projects.zubr.me/wiki/adblock2privoxyDownloads and then run it through
 adblock2privoxy. Debian "deb" package should be listed on the same site as well.
 
+  # Download easylist
   cd ~
   wget https://s3.amazonaws.com/ab2p/adblock2privoxy_1.4.2_amd64.debian8.deb
   sudo dpkg -i adblock2privoxy_1.4.2_amd64.debian8.deb
   wget https://s3.amazonaws.com/ab2p/ab2p.easylist.7z
   sudo apt-get install p7zip-full
+  mkdir ab2p.easylist
+  mv ab2p.easylist.7z ab2p.easylist/
+  cd ab2p.easylist
   7z x ab2p.easylist.7z
   sudo mkdir -p /var/www/privoxy
   sudo mv ab2p.easylist /var/www/privoxy
   cd /var/www/privoxy
-  sudo cp ./ab2p.easylist/privoxy/* /etc/privoxy
+  # Backup previous cofiguration
+  sudo mkdir -p /etc/privoxy-bak
+  sudo cp -R /etc/privoxy/* /etc/privoxy-bak/
+  sudo cp -R ./ab2p.easylist/privoxy/* /etc/privoxy
   sudo nano /etc/privoxy/config
   
 Search for "actionsfile" (Ctrl+W). add there these lines:
@@ -97,6 +104,8 @@ Search for "filterfile" (Ctrl+W). add there these lines:
 Save it and exit. Then restart privoxy:
 
   sudo service privoxy restart
+or
+  sudo systemctl restart privoxy
 
 Now we're gonna finish this by installing web server, which is going to filter ad
 elements on webpages i.e. hiding the blank space of an advertisment banner
