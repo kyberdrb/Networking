@@ -15,6 +15,31 @@ Install Squid package
 Configure Squid
 Test Squid
 
+
+
+
+
+
 Install SquidGuard package
+  SquidGuard is necessary, beacuse without it Squid alone is not able to filter URLs.
+
 Configure SquidGuard package
+  
+
+Everytime we change the configuration of Squid or SquidGuardian, the SquidGuard service needs to be restarted.
+In order to do so, we need to perform the "Update procedure", to force the loading of new settings.
+  Update procedure:
+    Uncheck "Enable SquidGuard". This disables SquidGuard.
+    Click on "Save" button on the bottom of the page. Wait, until the page finishes loading.
+    Click on "Apply" button underneath the checkbox "Enable SquidGuard". Wait, until the page finishes loading.
+    Check "Enable SquidGuard". This enables SquidGuard.
+    Click on "Save" button on the bottom of the page. Wait, until the page finishes loading.
+    Click on "Apply" button underneath the checkbox "Enable SquidGuard". Wait, until the page finishes loading.
+    
+
 Test SquidGuard
+  Use these sites to check, whether ad-blocking is working. Reload the pages with the proxy server enabled and disabled
+  to see, if ads are blocked by the proxy server.
+    
+    https://pi-hole.net/pages-to-test-ad-blocking-performance/#
+    engadget.com
