@@ -1,0 +1,20 @@
+Adblocking Proxy: pfSense + Squid + SquidGuard
+
+pfSense had been installed with only one network card.
+
+
+Install pfSense
+  download pfSense CD ISO
+  create virtual machine
+  configure virtual machine
+  install pfSense
+  configure pfSense
+  enable SSH
+  
+Install Squid package
+Configure Squid
+Test Squid
+
+Install SquidGuard package
+Configure SquidGuard package
+Test SquidGuard
