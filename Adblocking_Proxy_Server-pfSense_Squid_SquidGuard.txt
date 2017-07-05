@@ -14,8 +14,8 @@ pfSense
   Create virtual machine
     All availible number of CPUs, >512MB RAM, 10GB HDD, one or two network cards (if you want
     only proxy or firewall capability for LAN as well). For VirtualBox, enable: "System->Processor->Enable PAE/NX"
-  and for network adapters in "Network" set it as "Attached to:" = Bridged Adapter, then go to "Advanced->Promiscuous Mode" 
-  and set it to "Allow All". Insert downloaded ISO image into the virtual drive.
+    and for network adapters in "Network" set it as "Attached to:" = Bridged Adapter, then go to "Advanced->Promiscuous Mode" 
+    and set it to "Allow All". Insert downloaded ISO image into the virtual drive.
     
   Install pfSense
     Run virtual machine. You will see a bootloader. Wait. After a while you will see a "Configure Console"
@@ -37,13 +37,19 @@ pfSense
     majority of things can be configured.
     
   Enable SSH
-
+    
+    	
 ####################################################
 SQUID
 ####################################################
 Install Squid
+  
+
 Configure Squid
+  
+
 Test Squid
+  
 
 
 ####################################################
