@@ -1,28 +1,57 @@
 Adblocking Proxy: pfSense + Squid + SquidGuard
 
-pfSense had been installed with only one network card.
+pfSense provides a centralized solution to control network traffic.
+pfSense had been installed into VirtualBox. The computer, as well as the virtual machine
+had only one network card.
 
 ####################################################
-INSTALL pfSense
+pfSense
 ####################################################
-  download pfSense CD ISO
-  create virtual machine
-  configure virtual machine
-  install pfSense
-  configure pfSense
-  enable SSH
+  Download pfSense CD ISO: 
+    https://www.pfsense.org/download/
+    Choose: "File Type" = Install, "Architecture" = AMD64 (64-bit), "Mirror" = Frankfurt, Germany
+    
+  Create virtual machine
+    All availible number of CPUs, >512MB RAM, 10GB HDD, one or two network cards (if you want
+    only proxy or firewall capability for LAN as well). For VirtualBox, enable: "System->Processor->Enable PAE/NX"
+  and for network adapters in "Network" set it as "Attached to:" = Bridged Adapter, then go to "Advanced->Promiscuous Mode" 
+  and set it to "Allow All". Insert downloaded ISO image into the virtual drive.
+    
+  Install pfSense
+    Run virtual machine. You will see a bootloader. Wait. After a while you will see a "Configure Console"
+    dialog. Accept default options: "Accept these Settings". Then choose "Quick/Easy Install". Then choose
+    "OK". Wait. Then choose "Standard Kernel". Then choose "Reboot". Wait. When the "Configure Console"
+    dialog appears, in the menubar click on "Devices->CD/DVD devices->Remove disk from virtual drive".
+    Choose "Force Unmount". Then in the menubar click on "Machine->Reset". The pfSense is now installed,
+    now we need to configure it.
+    
+  Configure pfSense
+    Continuing in the first boot process, you will be prompted with several questions:
+    Should VLANs be set up now? n
+    Enter the WAN interface name or 'a' for auto-detection (em0 or a): em0
+    Enter the LAN interface name or 'a' for auto-detection: <press Enter>
+    Do you want to proceed?: y
+    Wait a moment, necessary services will be started. After that, you will be
+    greated with a main menu and IP address. You should enter this address to 
+    the internet browser, which will reveal pfSense web interface, in which the
+    majority of things can be configured.
+    
+  Enable SSH
 
 ####################################################
-INSTALL SQUID
+SQUID
 ####################################################
+Install Squid
 Configure Squid
 Test Squid
 
 
 ####################################################
-INSTALL SQUIDGUARD
+SQUIDGUARD
 ####################################################
   SquidGuard is necessary, beacuse without it Squid alone is not able to filter URLs.
+
+Install SquidGuard
 
 Configure SquidGuard package
   
