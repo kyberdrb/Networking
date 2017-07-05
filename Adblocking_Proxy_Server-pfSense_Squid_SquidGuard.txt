@@ -2,25 +2,26 @@ Adblocking Proxy: pfSense + Squid + SquidGuard
 
 pfSense had been installed with only one network card.
 
-
-Install pfSense
+####################################################
+INSTALL pfSense
+####################################################
   download pfSense CD ISO
   create virtual machine
   configure virtual machine
   install pfSense
   configure pfSense
   enable SSH
-  
-Install Squid package
+
+####################################################
+INSTALL SQUID
+####################################################
 Configure Squid
 Test Squid
 
 
-
-
-
-
-Install SquidGuard package
+####################################################
+INSTALL SQUIDGUARD
+####################################################
   SquidGuard is necessary, beacuse without it Squid alone is not able to filter URLs.
 
 Configure SquidGuard package
