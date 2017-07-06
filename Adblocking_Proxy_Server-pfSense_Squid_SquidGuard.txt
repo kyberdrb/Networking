@@ -79,7 +79,8 @@ Configure Squid
   Proxy Interfaces: WAN, loopback (we have only one interface, but normally you want to select only LAN and loopback)
   Proxy port: we can leave it blank to use default (3128). I changed it to 8118, beacuse I previously ran and had set up Privoxy on other devices and I didn't want to change it on all of them again.
   Check "Allow Users on Interface".
-  I didn't enable logging for the sake of stability and performance.
+  I didn't enable logging for the sake of stability and performance. But you can enable it int "Logging Settings" section.
+  Logs are then availible on "Real Time" tab.
   Click on "Save" button on the bottom of the page.
   Wait, until the page finishes loading.
 
@@ -130,15 +131,41 @@ Install SquidGuard
 ----------------------------------
 Configure SquidGuard package
 ----------------------------------
-  Everytime we change the configuration of Squid or SquidGuardian, the SquidGuard service needs to be restarted.
-  In order to do so, we need to perform the "Update procedure", to force the loading of new settings.
-    Update procedure:
-      -Uncheck "Enable SquidGuard". This disables SquidGuard.
-      -Click on "Save" button on the bottom of the page. Wait, until the page finishes loading.
-      -Click on "Apply" button underneath the checkbox "Enable SquidGuard". Wait, until the page finishes loading.
-      -Check "Enable SquidGuard". This enables SquidGuard.
-      -Click on "Save" button on the bottom of the page. Wait, until the page finishes loading.
-      -Click on "Apply" button underneath the checkbox "Enable SquidGuard". Wait, until the page finishes loading.
+  >>General Settings tab
+    In "Logging options" section enable "Enable GUI log", "Enable log", "Enable log rotation".
+    In "Miscellaneous" section enable "Clean Advertising".
+    In "Blacklist options" section enable "Blacklist". In the "Blacklist URL" enter:
+      http://www.shallalist.de/Downloads/shallalist.tar.gz
+    Click on "Save" button on the bottom of the page.
+    Wait, until the page finishes loading.
+  
+  >>Blacklist tab
+    Keep smashing the download button. Literally. It's a bug, that the list will not download after one click on the "Download"
+    button. You should also see the blacklist URL in the text field. Keep clicking on the "Download" button until it starts
+    downloading it. Just keep clicking ;)
+    After the list is installed, go to "Common ACL" tab.
+    
+  >>Common ACL
+    You should see next to "Target Rules" the "Target Rules List". Click on the plus sign.
+    Select the categories in "Target Categories", that should be blocked by selecting "deny" in the drop down menu.
+    The last category "Default access [all]" set to "allow".
+    Enable "Log".
+    Click on "Save" button on the bottom of the page.
+    Wait, until the page finishes loading.
+    
+  >>General settings
+    Check the "Enable" checkbox to enable SquidGuard. Do the "Update procedure" (explained below).
+  
+    UPDATE PROCEDURE
+    Everytime we change the configuration of Squid or SquidGuardian, the SquidGuard service needs to be restarted.
+    In order to do so, we need to perform the "Update procedure", to force the loading of new settings.
+      Stepps:
+        -Uncheck "Enable SquidGuard". This disables SquidGuard.
+        -Click on "Save" button on the bottom of the page. Wait, until the page finishes loading.
+        -Click on "Apply" button underneath the checkbox "Enable SquidGuard". Wait, until the page finishes loading.
+        -Check "Enable SquidGuard". This enables SquidGuard.
+        -Click on "Save" button on the bottom of the page. Wait, until the page finishes loading.
+        -Click on "Apply" button underneath the checkbox "Enable SquidGuard". Wait, until the page finishes loading.
     
 ----------------------------------
 Test SquidGuard
@@ -148,3 +175,15 @@ Test SquidGuard
     
     https://pi-hole.net/pages-to-test-ad-blocking-performance/#
     engadget.com
+    
+####################################################
+To speed things up
+####################################################
+  Enable "DNS Resolver" in "Services->DNS Resolver" and check "Enable DNS resolver".
+  In "Network Interfaces" choose "All".
+  In "Outgoing Network Interfaces" choose "all".
+  The rest of the settings we can leave on default.
+  Click on "Save" button on the bottom of the page.
+  Wait, until the page finishes loading.
+  
+  The pages should now load faster.
