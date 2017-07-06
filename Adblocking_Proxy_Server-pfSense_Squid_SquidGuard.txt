@@ -97,7 +97,7 @@ Configure Squid
 .bet365.com
 .addthis.com
 .liveadexchanger.com
-.ad.
+.sitelement.sk
 .ads.
   
   In category "Squid Allowed Ports" into box "ACL SafePorts" enter:
@@ -120,7 +120,7 @@ Test Squid
 SQUIDGUARD
 ####################################################
   SquidGuard URL filter for Squid, beacuse in pfSense Squid alone is not able to filter
-  (large number of) URLs (sadly).
+  (large number of) URLs (sadly). Although Squid is able to whitelist / blacklist small amount of pages.
 
 ----------------------------------
 Install SquidGuard
@@ -187,3 +187,10 @@ To speed things up
   Wait, until the page finishes loading.
   
   The pages should now load faster.
+
+####################################################
+Management
+####################################################
+  The SquidGuard should be up an runnig. You set it and forget it.
+  But if you see a page that should load, but is not, or a page that shouldn't load, but it is
+  check the Whitelist or Blacklist fields in Squid ACLs for finer control.
