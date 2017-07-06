@@ -1,6 +1,8 @@
 Adblocking Proxy: pfSense + Squid + SquidGuard
 
 pfSense provides a centralized solution to control network traffic.
+With combination with Squid and SquidGuard it is able to block HTTP
+and HTTPS URLs, unlike Privoxy, which I used previously.
 pfSense had been installed into VirtualBox. The computer, as well as the virtual machine
 had only one network card.
 
