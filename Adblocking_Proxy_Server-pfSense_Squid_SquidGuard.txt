@@ -66,17 +66,53 @@ Install Squid
 ----------------------------------
 Configure Squid
 ----------------------------------
+>>Local Cache
+  First of all, we need to prepare caching space for Squid, beacuse Squid is a "caching" proxy :)
+  Find "Hard Disk Cache Size" under "Squid Hard Disk Cache Settings". I set it to 500MB, but you can choose whatever size.
+  The size depends on number of users using the proxy and amount of traffic, that they generate.
+  Other setting can be left on default settings.
+  Click on "Save" button on the bottom of the page. Squid will prepare the cache partition.
+  Wait, until the page finishes loading.
+
+>>General tab
   Check "Enable Squid Proxy", "Keep Settings/Data".
   Proxy Interfaces: WAN, loopback (we have only one interface, but normally you want to select only LAN and loopback)
-  Proxy port: we can leave it blank to use default (3128). I changed it to 8118, beacuse previously I ran and set up on other devices Privoxy.
+  Proxy port: we can leave it blank to use default (3128). I changed it to 8118, beacuse I previously ran and had set up Privoxy on other devices and I didn't want to change it on all of them again.
   Check "Allow Users on Interface".
+  I didn't enable logging for the sake of stability and performance.
   Click on "Save" button on the bottom of the page.
   Wait, until the page finishes loading.
 
+>>ACLs tab
+  In "Allowed Subnets" enter your network address and mask in CIDR format. For me it was "192.168.0.0/25" (without quotes).
+  I also created a small blacklist for blocking ads. Enter this into the "Blacklist" box:
+  
+.googlesyndication.com
+.crashlytics.com
+.google-analytics.com
+.googleusercontent.com
+.doubleclick.net
+.adskeeper.co.uk
+.bet365.com
+.addthis.com
+.liveadexchanger.com
+.ad.
+.ads.
+  
+  In category "Squid Allowed Ports" into box "ACL SafePorts" enter:
+    80 443 22
+  and for "ACL SSLPorts":
+    443 22
+  
+  Click on "Save" button on the bottom of the page.
+  Wait, until the page finishes loading.
 ----------------------------------
 Test Squid
 ----------------------------------
-  
+  Firefox
+  Opera
+  Windows
+  Linux
 
 
 ####################################################
