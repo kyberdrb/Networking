@@ -43,7 +43,7 @@ pfSense
     majority of things can be configured.
   
   ----------------------------------
-  Enable SSH
+  Enable SSH and disable state killing
   ----------------------------------
     pfSense can be easily troubleshooted from the web GUI, but it's always better
     to have SSH access to diagnose problems at deeper level.
@@ -51,11 +51,20 @@ pfSense
     Click on "Save" button on the bottom of the page.
     Wait, until the page finishes loading. You can then log in via SSH with the same
     credentials as for the GUI.
+    
+    Next thing is disabling state killing, which resolves some instability or lost connection
+    with proxy server later on after few hours.
+    In "System->Advanced->Miscellaneous" find section "Schedules" and check " Schedule States" checkbox
+    (Do not kill connections when schedule expires).
+    Then in section "Gateway Monitoring" uncheck "State Killing on Gateway Failure".
+    Click on "Save" button on the bottom of the page.
+    Wait, until the page finishes loading.
+
     	
 ####################################################
 SQUID
 ####################################################
-  Squid is a proxy server which we will use to monitor network traffic.
+  Squid is a proxy server which we will use to monitor and filter network traffic.
 
 ----------------------------------
 Install Squid
@@ -91,7 +100,6 @@ Configure Squid
 .googlesyndication.com
 .crashlytics.com
 .google-analytics.com
-.googleusercontent.com
 .doubleclick.net
 .adskeeper.co.uk
 .bet365.com
@@ -107,20 +115,31 @@ Configure Squid
   
   Click on "Save" button on the bottom of the page.
   Wait, until the page finishes loading.
+  
+----
+Note
+----
+  You can also edit Blacklist and Whitelist directly via "Diagnostics->Edit File"
+  Blacklist and whitelist file are in directory "/var/squid/acl/".
+  There you can enter larger amount of rules and URLs than in web GUI,
+  beacuse when you paste a large list of URLs in whitelist/blacklist, the GUI will NOT save the changes.
+  
 ----------------------------------
 Test Squid
 ----------------------------------
-  Firefox
-  Opera
-  Windows
-  Linux
-
+  Google, how to enable proxy on:
+    Firefox
+    Opera
+    Windows
+    Linux
+    ... ;)
 
 ####################################################
 SQUIDGUARD
 ####################################################
-  SquidGuard URL filter for Squid, beacuse in pfSense Squid alone is not able to filter
-  (large number of) URLs (sadly). Although Squid is able to whitelist / blacklist small amount of pages.
+  SquidGuard is a automated content filtering tool for Squid.
+  It is used to filter larger amount of URLs, beacuse in pfSense, Squid alone is not able to filter
+  large number of URLs (sadly), although Squid is able to whitelist / blacklist small amount of pages.
 
 ----------------------------------
 Install SquidGuard
@@ -194,3 +213,35 @@ Management
   The SquidGuard should be up an runnig. You set it and forget it.
   But if you see a page that should load, but is not, or a page that shouldn't load, but it is
   check the Whitelist or Blacklist fields in Squid ACLs for finer control.
+
+####################################################
+Sources
+####################################################
+http://www.shalla.de/Info/blacklists.html
+https://doc.pfsense.org/index.php/Installing_pfSense
+https://forum.pfsense.org/index.php?topic=46351.0
+https://doc.pfsense.org/index.php/SquidGuard_package
+https://www.youtube.com/watch?v=ledv33t6SNE
+https://www.youtube.com/watch?v=h97J70hzcP0
+https://www.howtoforge.com/pfsense-squid-squidguard-traffic-shaping-tutorial
+https://forum.pfsense.org/index.php?topic=110015.msg618972#msg618972
+https://www.youtube.com/watch?v=H-6_13P8pS8
+https://forum.pfsense.org/index.php?topic=112335.0    (This pointed me to enable DNS Resolver)
+https://doc.pfsense.org/index.php/Setup_Squid_as_a_Transparent_Proxy
+https://turbofuture.com/internet/URL-Filtering-How-To-Configure-SquidGuard-in-pfSense
+https://forum.pfsense.org/index.php?topic=50372.msg268237#msg268237   (disabling state killing solved problems with instability)
+https://turbofuture.com/internet/Intercepting-HTTPS-Traffic-Using-the-Squid-Proxy-in-pfSense
+https://stackoverflow.com/questions/38245867/mistaken-squid-proxy-regex-%E2%86%92-stackoverflow
+http://wiki.squid-cache.org/SquidFaq/SquidAcl#Squid_doesn.27t_match_my_subdomains
+https://stackoverflow.com/questions/5185983/delete-all-lines-starting-with-or-in-notepad
+https://stackoverflow.com/questions/3866034/removing-empty-lines-in-notepad
+https://doc.pfsense.org/index.php/HOWTO_enable_SSH_access
+
+---------------------------------------
+Other interesting, not tested, sources:
+---------------------------------------
+https://pyronexus.com/2017/01/13/blocking-adverts-with-squid-proxy/
+https://github.com/jamesmacwhite/squidguard-adblock
+https://forum.pfsense.org/index.php?topic=80301.0
+https://forum.pfsense.org/index.php?topic=19756.0
+http://www.squidguard.org/blacklists.html
