@@ -238,6 +238,7 @@ http://wiki.squid-cache.org/SquidFaq/SquidAcl#Squid_doesn.27t_match_my_subdomain
 https://stackoverflow.com/questions/5185983/delete-all-lines-starting-with-or-in-notepad
 https://stackoverflow.com/questions/3866034/removing-empty-lines-in-notepad
 https://doc.pfsense.org/index.php/HOWTO_enable_SSH_access
+http://darnitol.blogspot.sk/2012/01/pfsense-and-squid-proxy-managing-ram.html
 
 ---------------------------------------
 Other interesting, not tested, sources:
