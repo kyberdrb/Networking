@@ -10,22 +10,28 @@ pfSense
   Download pfSense CD ISO: 
     https://www.pfsense.org/download/
     Choose: "File Type" = Install, "Architecture" = AMD64 (64-bit), "Mirror" = Frankfurt, Germany
-    
+  
+  ----------------------------------
   Create virtual machine
+  ----------------------------------
     All availible number of CPUs, >512MB RAM, 10GB HDD, one or two network cards (if you want
     only proxy or firewall capability for LAN as well). For VirtualBox, enable: "System->Processor->Enable PAE/NX"
     and for network adapters in "Network" set it as "Attached to:" = Bridged Adapter, then go to "Advanced->Promiscuous Mode" 
     and set it to "Allow All". Insert downloaded ISO image into the virtual drive.
     
+  ----------------------------------
   Install pfSense
+  ----------------------------------
     Run virtual machine. You will see a bootloader. Wait. After a while you will see a "Configure Console"
     dialog. Accept default options: "Accept these Settings". Then choose "Quick/Easy Install". Then choose
     "OK". Wait. Then choose "Standard Kernel". Then choose "Reboot". Wait. When the "Configure Console"
     dialog appears, in the menubar click on "Devices->CD/DVD devices->Remove disk from virtual drive".
     Choose "Force Unmount". Then in the menubar click on "Machine->Reset". The pfSense is now installed,
     now we need to configure it.
-    
+  
+  ----------------------------------
   Configure pfSense
+  ----------------------------------
     Continuing in the first boot process, you will be prompted with several questions:
     Should VLANs be set up now? n
     Enter the WAN interface name or 'a' for auto-detection (em0 or a): em0
@@ -35,8 +41,10 @@ pfSense
     greated with a main menu and IP address. You should enter this address to 
     the internet browser, which will reveal pfSense web interface, in which the
     majority of things can be configured.
-    
+  
+  ----------------------------------
   Enable SSH
+  ----------------------------------
     pfSense can be easily troubleshooted from the web GUI, but it's always better
     to have SSH access to diagnose problems at deeper level.
     Under "System->Advanced" in category "Secure Shell" enable "Secure Shell Server".
@@ -47,42 +55,58 @@ pfSense
 ####################################################
 SQUID
 ####################################################
-Install Squid
   Squid is a proxy server which we will use to monitor network traffic.
 
-Configure Squid
+----------------------------------
+Install Squid
+----------------------------------
   "System->Package Manager->Availible Packages" and in the "Search Term" box enter "squid"
   and press Enter. Then install package "squid". Confirm.
 
+----------------------------------
+Configure Squid
+----------------------------------
+  Check "Enable Squid Proxy", "Keep Settings/Data".
+  Proxy Interfaces: WAN, loopback (we have only one interface, but normally you want to select only LAN and loopback)
+  Proxy port: we can leave it blank to use default (3128). I changed it to 8118, beacuse previously I ran and set up on other devices Privoxy.
+  Check "Allow Users on Interface".
+  Click on "Save" button on the bottom of the page.
+  Wait, until the page finishes loading.
+
+----------------------------------
 Test Squid
+----------------------------------
   
 
 
 ####################################################
 SQUIDGUARD
 ####################################################
-  SquidGuard URL filter for Squid, beacuse Squid alone in pfSense is not able to filter
+  SquidGuard URL filter for Squid, beacuse in pfSense Squid alone is not able to filter
   (large number of) URLs (sadly).
 
+----------------------------------
 Install SquidGuard
+----------------------------------
   "System->Package Manager->Availible Packages" and in the "Search Term" box enter "squidGuard"
   and press Enter. Then install package "squidGuard". Confirm.
-  
+
+----------------------------------
 Configure SquidGuard package
-  
-
-Everytime we change the configuration of Squid or SquidGuardian, the SquidGuard service needs to be restarted.
-In order to do so, we need to perform the "Update procedure", to force the loading of new settings.
-  Update procedure:
-    Uncheck "Enable SquidGuard". This disables SquidGuard.
-    Click on "Save" button on the bottom of the page. Wait, until the page finishes loading.
-    Click on "Apply" button underneath the checkbox "Enable SquidGuard". Wait, until the page finishes loading.
-    Check "Enable SquidGuard". This enables SquidGuard.
-    Click on "Save" button on the bottom of the page. Wait, until the page finishes loading.
-    Click on "Apply" button underneath the checkbox "Enable SquidGuard". Wait, until the page finishes loading.
+----------------------------------
+  Everytime we change the configuration of Squid or SquidGuardian, the SquidGuard service needs to be restarted.
+  In order to do so, we need to perform the "Update procedure", to force the loading of new settings.
+    Update procedure:
+      -Uncheck "Enable SquidGuard". This disables SquidGuard.
+      -Click on "Save" button on the bottom of the page. Wait, until the page finishes loading.
+      -Click on "Apply" button underneath the checkbox "Enable SquidGuard". Wait, until the page finishes loading.
+      -Check "Enable SquidGuard". This enables SquidGuard.
+      -Click on "Save" button on the bottom of the page. Wait, until the page finishes loading.
+      -Click on "Apply" button underneath the checkbox "Enable SquidGuard". Wait, until the page finishes loading.
     
-
+----------------------------------
 Test SquidGuard
+----------------------------------
   Use these sites to check, whether ad-blocking is working. Reload the pages with the proxy server enabled and disabled
   to see, if ads are blocked by the proxy server.
     
