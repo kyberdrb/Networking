@@ -37,16 +37,22 @@ pfSense
     majority of things can be configured.
     
   Enable SSH
-    
+    pfSense can be easily troubleshooted from the web GUI, but it's always better
+    to have SSH access to diagnose problems at deeper level.
+    Under "System->Advanced" in category "Secure Shell" enable "Secure Shell Server".
+    Click on "Save" button on the bottom of the page.
+    Wait, until the page finishes loading. You can then log in via SSH with the same
+    credentials as for the GUI.
     	
 ####################################################
 SQUID
 ####################################################
 Install Squid
-  
+  Squid is a proxy server which we will use to monitor network traffic.
 
 Configure Squid
-  
+  "System->Package Manager->Availible Packages" and in the "Search Term" box enter "squid"
+  and press Enter. Then install package "squid". Confirm.
 
 Test Squid
   
@@ -55,10 +61,13 @@ Test Squid
 ####################################################
 SQUIDGUARD
 ####################################################
-  SquidGuard is necessary, beacuse without it Squid alone is not able to filter URLs.
+  SquidGuard URL filter for Squid, beacuse Squid alone in pfSense is not able to filter
+  (large number of) URLs (sadly).
 
 Install SquidGuard
-
+  "System->Package Manager->Availible Packages" and in the "Search Term" box enter "squidGuard"
+  and press Enter. Then install package "squidGuard". Confirm.
+  
 Configure SquidGuard package
   
 
