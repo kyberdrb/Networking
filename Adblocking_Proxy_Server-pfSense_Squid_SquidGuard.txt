@@ -216,6 +216,10 @@ Management
   But if you see a page that should load, but is not, or a page that shouldn't load, but it is
   check the Whitelist or Blacklist fields in Squid ACLs for finer control.
 
+  Maybe you want to add a cron job, when loading pages is slower over time. This is due to
+  increasing RAM consumption of Squid.
+  TODO - explain cron job creation
+  
 ####################################################
 Sources
 ####################################################
@@ -239,6 +243,8 @@ https://stackoverflow.com/questions/5185983/delete-all-lines-starting-with-or-in
 https://stackoverflow.com/questions/3866034/removing-empty-lines-in-notepad
 https://doc.pfsense.org/index.php/HOWTO_enable_SSH_access
 http://darnitol.blogspot.sk/2012/01/pfsense-and-squid-proxy-managing-ram.html
+https://forum.pfsense.org/index.php?topic=23569.0
+https://calomel.org/cron_at.html
 
 ---------------------------------------
 Other interesting, not tested, sources:
