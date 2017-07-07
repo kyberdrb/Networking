@@ -80,7 +80,9 @@ Configure Squid
 >>Local Cache
   First of all, we need to prepare caching space for Squid, beacuse Squid is a "caching" proxy :)
   Find "Hard Disk Cache Size" under "Squid Hard Disk Cache Settings". I set it to 500MB, but you can choose whatever size.
-  The size depends on number of users using the proxy and amount of traffic, that they generate.
+  Change " Memory Cache Size" under "Squid Memory Cache Settings" and set it to 64 (MB), and 
+  set " Maximum Object Size in RAM" to 64.
+  The size depends on number of users using the proxy, the amount of traffic, that they generate and availible hardware limitations.
   Other setting can be left on default settings.
   Click on "Save" button on the bottom of the page. Squid will prepare the cache partition.
   Wait, until the page finishes loading.
@@ -129,12 +131,29 @@ Note
 ----------------------------------
 Test Squid
 ----------------------------------
-  Google, how to enable proxy on:
+  Set web browsers or operating systems to use proxy.
     Firefox
+      Menu->Options->Advanced->Network->Connection: Configure how Firefox connects to the Internet-> Settings...
+      > Select "Manual proxy configuration" and enter the proxy server IP and port: IP address of pfSense and port (default is 3128). For convenience we can check "Use this proxy server for all protocols". 
+      > Or select "Use system settings" which uses the proxy server of the operating system. Then you need to configure
+      proxy in the operating system.
+      Press Enter. The changes are applied immediately.
+      
     Opera
-    Windows
+      On Windows it opens proxy dialog window, on Linux you have to create a script with which we can force Opera to use
+      our proxy server. Script:
+      
+TODO opera proxy script for linux
+    
+    Windows 10
+      Start->Settings->Network & Internet->Proxy.
+      Under "Manual proxy setup" enable "Use proxy server".
+      In the "Address" field enter IP address of the proxy server (IP address of pfSense).
+      In the "Port" field enter the port, on which the proxy server listens
+      
     Linux
-    ... ;)
+      Haven't bothered :) I rather set it up in browsers for the sake of simplicity.
+    
 
 ####################################################
 SQUIDGUARD
@@ -216,9 +235,29 @@ Management
   But if you see a page that should load, but is not, or a page that shouldn't load, but it is
   check the Whitelist or Blacklist fields in Squid ACLs for finer control.
 
+Increasing stability ...
   Maybe you want to add a cron job, when loading pages is slower over time. This is due to
-  increasing RAM consumption of Squid.
-  TODO - explain cron job creation
+  increasing RAM consumption of Squid. I had only 512MB of RAM availible to pfSense.
+  One solution to this is to reboot pfSense once a day. I decided to reboot the (virtual) machine
+  every day at 3:30 AM. I created a cron job to do this for me.
+  
+  Firstly, we need to install cron. Go to "System->Package Manager->Availible Packages".
+  In "Search term" field enter "cron" and press Enter. Wait until the install finishes.
+  
+  Now go to "Services->Cron".
+  Click on "Add" button/tab.
+  I wanted to reboot pfSense every day at 3:30. so I set it up as follows:
+    -Minute:              30
+    -Hour:                3
+    -Day of the Month:    *
+    -Month of the Year:   *
+    -Day of the Week:     *
+    -User:                root
+    -Command:             /sbin/reboot
+    
+  Click on "Save" button on the bottom of the page.
+  Wait, until the page finishes loading.
+  The cron job for pfSense automatic rebooting is now set up and active.
   
 ####################################################
 Sources
