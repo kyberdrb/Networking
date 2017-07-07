@@ -172,7 +172,7 @@ Install SquidGuard
 Configure SquidGuard package
 ----------------------------------
   >>General Settings tab
-    In "Logging options" section enable "Enable GUI log", "Enable log", "Enable log rotation".
+    In "Logging options" section disable "Enable GUI log", "Enable log", "Enable log rotation".
     In "Miscellaneous" section enable "Clean Advertising".
     In "Blacklist options" section enable "Blacklist". In the "Blacklist URL" enter:
       http://www.shallalist.de/Downloads/shallalist.tar.gz
@@ -260,8 +260,73 @@ Increasing stability ...
   The cron job for pfSense automatic rebooting is now set up and active.
   
 ####################################################
+Tuning
+####################################################
+-------------------------------------------
+  Tunning Squid for more performance.
+-------------------------------------------
+  >"System->Advanced->System Tunables"
+  vfs.read_max: 128
+  kern.ipc.nmbclusters: 32768
+  
+  If any of these variables is not listed, create it via pressing the "New" button.
+  Save, then Apply.
+
+-------------------------------------------
+  SSD tuning
+-------------------------------------------
+  >Disable swap.
+    -Log in into pfSense via SSH.
+    -In the main menu press "8" and hit Enter.
+    -Check if swap is enabled:
+
+swapctl -l
+    
+    Output:
+    
+Device:       1024-blocks     Used:
+/dev/label/swap0   1048572         0
+
+    -In my case, the swap partition is enabled, beacuse it lists the total amount of swap space and amount of used space. If it's not listing swap size, swap is turned off.
+    -The swap partition was listed under Device as "/dev/label/swap0".
+    -Disable swap partition:
+
+swapoff /dev/label/swap0
+
+    -Check if swap has been disabled:
+    
+swapctl -l
+
+    -The command should only list this:
+
+Device:       1024-blocks     Used:
+
+    which means, the swap has been successfuly disabled.
+   
+  >Increase amount of total availible RAM - I think 512MB of RAM is plenty sufficient for my purposes.
+    
+  >Disable all logging (and enable it only when needed)
+    "Status->System Logs->Settings"
+    Uncheck EVERYTHING.
+    Check "Local Logging: Disable writing log files to the local disk"
+    Click on "Reset log files" button. Press "OK".
+    Save.
+  
+  >Use overprovisioning on host system
+    Reserve 20% of your SSD space as unformatted partition. The SSD will then use it to move data around.
+    
+  >Reinstall pfSense in "nanoBSD" mode for embedded systems. In "nanoBSD" mode, pfSense keeps most of the things in RAM, so it spares the SSD/memory card. The I/O operations are also optimized (minimalized).
+  
+####################################################
+Finally ...
+####################################################
+  Don't forget to backup configuration!!!
+  "Diagnostics->Backup & Restore" and click on the button "Download configuration as XML".
+
+####################################################
 Sources
 ####################################################
+(Installing pfSense, Squid, SquidGuard)
 http://www.shalla.de/Info/blacklists.html
 https://doc.pfsense.org/index.php/Installing_pfSense
 https://forum.pfsense.org/index.php?topic=46351.0
@@ -284,6 +349,14 @@ https://doc.pfsense.org/index.php/HOWTO_enable_SSH_access
 http://darnitol.blogspot.sk/2012/01/pfsense-and-squid-proxy-managing-ram.html
 https://forum.pfsense.org/index.php?topic=23569.0
 https://calomel.org/cron_at.html
+
+(Tuning)
+https://doc.pfsense.org/index.php/Squid_Package_Tuning
+https://doc.pfsense.org/index.php/Tuning_and_Troubleshooting_Network_Cards
+https://forum.pfsense.org/index.php?topic=61403.0
+https://forum.pfsense.org/index.php?topic=34381.0
+https://forums.freebsd.org/threads/20663/
+https://doc.pfsense.org/index.php/Firewall_Logs
 
 ---------------------------------------
 Other interesting, not tested, sources:
