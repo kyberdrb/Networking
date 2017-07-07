@@ -6,20 +6,33 @@ and HTTPS URLs, unlike Privoxy, which I used previously.
 pfSense had been installed into VirtualBox. The computer, as well as the virtual machine
 had only one network card.
 
+This tutorial I will explain, how to install pfSense on HDD and SSD seperately.
+Beacuse SSD is a flash storage, such as memory cards, it needs special treatment.
+But the HDD and SSD is very similar
+
+****************************************************
+####################################################
+                   HDD install
+####################################################
+****************************************************
+
 ####################################################
 pfSense
 ####################################################
   Download pfSense CD ISO: 
     https://www.pfsense.org/download/
-    Choose: "File Type" = Install, "Architecture" = AMD64 (64-bit), "Mirror" = Frankfurt, Germany
+    Choose: "File Type" = Install
+            "Architecture" = AMD64 (64-bit)
+            "Platform" = CD Image (ISO) Installer
+            "Mirror" = Frankfurt, Germany
   
   ----------------------------------
   Create virtual machine
   ----------------------------------
-    All availible number of CPUs, >512MB RAM, 10GB HDD, one or two network cards (if you want
+    All availible number of CPUs, >=512MB RAM, 10GB HDD, one or two network cards (if you want
     only proxy or firewall capability for LAN as well). For VirtualBox, enable: "System->Processor->Enable PAE/NX"
-    and for network adapters in "Network" set it as "Attached to:" = Bridged Adapter, then go to "Advanced->Promiscuous Mode" 
-    and set it to "Allow All". Insert downloaded ISO image into the virtual drive.
+    and for network adapters (in my case for only one adapter) in "Network" set it as "Attached to:" = Bridged Adapter, 
+    then go to "Advanced->Promiscuous Mode" and set it to "Allow All". Insert downloaded ISO image into the virtual drive.
     
   ----------------------------------
   Install pfSense
@@ -143,7 +156,8 @@ Test Squid
       On Windows it opens proxy dialog window, on Linux you have to create a script with which we can force Opera to use
       our proxy server. Script:
       
-TODO opera proxy script for linux
+#!/bin/bash
+opera --proxy-server="192.168.0.2:8118"
     
     Windows 10
       Start->Settings->Network & Internet->Proxy.
@@ -221,7 +235,7 @@ To speed things up
 ####################################################
   Enable "DNS Resolver" in "Services->DNS Resolver" and check "Enable DNS resolver".
   In "Network Interfaces" choose "All".
-  In "Outgoing Network Interfaces" choose "all".
+  In "Outgoing Network Interfaces" choose "All".
   The rest of the settings we can leave on default.
   Click on "Save" button on the bottom of the page.
   Wait, until the page finishes loading.
@@ -322,6 +336,123 @@ Finally ...
 ####################################################
   Don't forget to backup configuration!!!
   "Diagnostics->Backup & Restore" and click on the button "Download configuration as XML".
+  
+  
+
+
+
+****************************************************
+####################################################
+                   SSD install
+####################################################
+****************************************************
+
+####################################################
+pfSense
+####################################################
+  Download pfSense CD ISO: 
+    https://www.pfsense.org/download/
+    Choose: "File Type" = Install
+            "Architecture" = AMD64 (64-bit)
+            "Platform" = Embedded (nanoBSD)
+            "Console" = VGA (or you can choose Serial, if you can handle it in VirtualBox :D )
+            "Media Size" = 2GB (This is effectivlely the size of your non-volatile storage. I chose 2GB, but it really doesn't matter much. Maybe when you require more packages to be installed)
+            "Mirror" = Frankfurt, Germany
+            
+This will download a compressed IMG archive with preinstalled pfSense that only needs to be configured.
+  
+  ----------------------------------
+  Create virtual machine
+  ----------------------------------
+    All availible number of CPUs, >512MB RAM, 10GB HDD, one or two network cards (if you want
+    only proxy or firewall capability for LAN as well). For VirtualBox, enable: "System->Processor->Enable PAE/NX"
+    and for network adapters (in my case for only one adapter) in "Network" set it as "Attached to:" = Bridged Adapter,
+    then go to "Advanced->Promiscuous Mode" and set it to "Allow All".
+    
+    You can also disable audio and USB ports in virtual machine settings - you won't probably need it.
+    
+    Now go to "Storage". We will continue with making a virtual HDD from our downloaded IMG archive.
+    
+  ----------------------------------
+  Creating virtual HDD
+  ----------------------------------
+    Now we will decompress the file we downloaded earlier. Open a terminal/command prompt.
+    
+    Decompress the .gz to get a plain disk image .img file (you need pfSense-2.0.1-RELEASE-4g-i386-nanobsd_vga.img).
+    For extraction in Linux, I like to use "dtrx" utility. It makes extracting archives so much easier ... :)
+    In Windows use WinRAR or whatever you like :)
+    
+dtrx <name_of_the_pfsense_archive>.img.gz
+    
+    Convert the disk image to a virtual hard disk using this command:
+
+VBoxManage convertfromraw <name_of_the_pfsense_archive>.img <name_of_the_pfsense_archive>.vdi
+
+    Move to the same directory as the pfSense virtual machine:
+    
+mv <name_of_the_pfsense_archive>.vdi ~/VirtualBox\ VMs/<name_of_the_pfsense_virtual_machine>
+
+    Don't worry if the .vdi file will be much smaller.
+    It will actually be a dynamic virtual disk, which physically occupies only the amount of data which is not empty.
+  
+  Connect created .vdi disk to the virtual machine. Go to "Settings->Storage", click on existing virtual HDD.
+  Then click on the small HDD icon on the right side. From the drop down menu choose "Choose Virtual Hard Disk File".
+  Navigate to the virtual machine directory and choose the new .vdi file. Press "Open".
+  
+  Close virtual machine setting by clicking on "OK" button.
+  
+  ----------------------------------
+  Configure pfSense
+  ----------------------------------
+  Run the virtual machine. You will see a bootloader. Wait.
+  Continuing in the first boot process, you will be prompted with several questions:
+    Should VLANs be set up now? n
+    Enter the WAN interface name or 'a' for auto-detection (em0 or a): em0
+    Enter the LAN interface name or 'a' for auto-detection: <press Enter>
+    Do you want to proceed?: y
+    Wait a moment, necessary services will be started. After that, you will be
+    greated with a main menu and IP address. You should enter this address to 
+    the internet browser, which will reveal pfSense web interface, in which the
+    majority of things can be configured.
+    
+  The rest is the same as in HDD install.
+	
+####################################################
+SQUID
+####################################################
+  Same as in HDD install.
+  HDD caching doesn't work in nanoBSD install, beacuse the flash storage is read only
+  to increase the lifespan of the storage media.
+    
+####################################################
+SQUIDGUARD
+####################################################
+  Same as in HDD install.
+    
+####################################################
+To speed things up
+####################################################
+  Same as in HDD install.
+
+####################################################
+Management
+####################################################
+  Same as in HDD install, but we don't need to create cron job to restart the pfSense machine daily.
+  It seems, that nanoBSD version runs more stable than regular pfSense installation.
+  
+####################################################
+Tuning
+####################################################
+  Same as in HDD install.
+  We don't need to disable swap, beacuse it's disabled by default :)
+  
+####################################################
+Finally ...
+####################################################
+  Backup ;) Same as in HDD install.
+
+
+
 
 ####################################################
 Sources
@@ -349,6 +480,10 @@ https://doc.pfsense.org/index.php/HOWTO_enable_SSH_access
 http://darnitol.blogspot.sk/2012/01/pfsense-and-squid-proxy-managing-ram.html
 https://forum.pfsense.org/index.php?topic=23569.0
 https://calomel.org/cron_at.html
+
+(nanoBSD install)
+https://superuser.com/questions/554862/how-to-convert-img-to-usable-virtualbox-format
+https://forum.pfsense.org/index.php?topic=47306.0
 
 (Tuning)
 https://doc.pfsense.org/index.php/Squid_Package_Tuning
