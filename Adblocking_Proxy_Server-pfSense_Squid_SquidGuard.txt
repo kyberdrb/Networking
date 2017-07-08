@@ -8,7 +8,11 @@ had only one network card.
 
 This tutorial I will explain, how to install pfSense on HDD and SSD seperately.
 Beacuse SSD is a flash storage, such as memory cards, it needs special treatment.
-But the HDD and SSD is very similar
+But the HDD and SSD install are very similar.
+
+I preffer SSD install over HDD, beacuse is more flexible and it's faster than the
+HDD install. Also, the SSD install seems to have less latency, since everything
+is copied and accessed from RAM.
 
 ****************************************************
 ####################################################
