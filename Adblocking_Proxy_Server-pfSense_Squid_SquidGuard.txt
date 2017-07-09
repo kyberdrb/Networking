@@ -129,6 +129,9 @@ Configure Squid
 .liveadexchanger.com
 .sitelement.sk
 .ads.
+.exponea.com
+harvester.joj.sk
+.adzerk.net
   
   In category "Squid Allowed Ports" into box "ACL SafePorts" enter:
     80 443 22
