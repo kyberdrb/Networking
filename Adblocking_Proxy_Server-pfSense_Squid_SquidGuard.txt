@@ -33,9 +33,10 @@ pfSense
   ----------------------------------
   Create virtual machine
   ----------------------------------
-    All availible number of CPUs, >=512MB RAM, 10GB HDD, one or two network cards (if you want
-    only proxy or firewall capability for LAN as well). For VirtualBox, enable: "System->Processor->Enable PAE/NX"
-    and for network adapters (in my case for only one adapter) in "Network" set it as "Attached to:" = Bridged Adapter, 
+    All availible number of CPUs, >=512MB RAM (but I actually run it at 360MB with 60-80% RAM utilization),
+    10GB HDD, one or two network cards (if you want only proxy or firewall capability for LAN as well). 
+    For VirtualBox, enable: "System->Processor->Enable PAE/NX".
+    For network adapters (in my case for only one adapter) in "Network" set it as "Attached to:" = Bridged Adapter, 
     then go to "Advanced->Promiscuous Mode" and set it to "Allow All". Insert downloaded ISO image into the virtual drive.
     
   ----------------------------------
@@ -255,9 +256,10 @@ Management
 
 Increasing stability ...
   Maybe you want to add a cron job, when loading pages is slower over time. This is due to
-  increasing RAM consumption of Squid. I had only 512MB of RAM availible to pfSense.
+  increasing RAM consumption of Squid. I had only 360MB of RAM availible to pfSense.
   One solution to this is to reboot pfSense once a day. I decided to reboot the (virtual) machine
-  every day at 3:30 AM. I created a cron job to do this for me.
+  every day at 3:30 AM. I created a cron job to do this for me. This is not needed if you did 
+  a nanoBSD install, as explained in SSD install.
   
   Firstly, we need to install cron. Go to "System->Package Manager->Availible Packages".
   In "Search term" field enter "cron" and press Enter. Wait until the install finishes.
@@ -321,7 +323,7 @@ Device:       1024-blocks     Used:
 
     which means, the swap has been successfuly disabled.
    
-  >Increase amount of total availible RAM - I think 512MB of RAM is plenty sufficient for my purposes.
+  >Increase amount of total availible RAM - I think 360MB of RAM is plenty sufficient for my purposes.
     
   >Disable all logging (and enable it only when needed)
     "Status->System Logs->Settings"
@@ -368,7 +370,7 @@ This will download a compressed IMG archive with preinstalled pfSense that only 
   ----------------------------------
   Create virtual machine
   ----------------------------------
-    All availible number of CPUs, >512MB RAM, 10GB HDD, one or two network cards (if you want
+    All availible number of CPUs, >360MB RAM, 10GB HDD, one or two network cards (if you want
     only proxy or firewall capability for LAN as well). For VirtualBox, enable: "System->Processor->Enable PAE/NX"
     and for network adapters (in my case for only one adapter) in "Network" set it as "Attached to:" = Bridged Adapter,
     then go to "Advanced->Promiscuous Mode" and set it to "Allow All".
