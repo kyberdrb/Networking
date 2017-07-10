@@ -395,7 +395,11 @@ dtrx <name_of_the_pfsense_archive>.img.gz
     
     Convert the disk image to a virtual hard disk using this command:
 
+(linux)
 VBoxManage convertfromraw <name_of_the_pfsense_archive>.img <name_of_the_pfsense_archive>.vdi
+
+(windows)
+"C:\Program Files\Oracle\VirtualBox\VBoxManage" convertfromraw <name_of_the_pfsense_archive>.img <name_of_the_pfsense_archive>.vdi
 
     Move to the same directory as the pfSense virtual machine:
     
