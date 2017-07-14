@@ -1,31 +1,57 @@
 Adblocking Proxy: pfSense + Squid + SquidGuard
 
 pfSense provides a centralized solution to control network traffic.
+With combination with Squid and SquidGuard it is able to block HTTP
+and HTTPS URLs, unlike Privoxy, which I used previously.
 pfSense had been installed into VirtualBox. The computer, as well as the virtual machine
 had only one network card.
+
+This tutorial I will explain, how to install pfSense on HDD and SSD seperately.
+Beacuse SSD is a flash storage, such as memory cards, it needs special treatment.
+But the HDD and SSD install are very similar.
+
+I preffer SSD install over HDD, beacuse is more flexible and it's faster than the
+HDD install. Also, the SSD install seems to have less latency, since everything
+is copied and accessed from RAM.
+
+****************************************************
+####################################################
+                   HDD install
+####################################################
+****************************************************
 
 ####################################################
 pfSense
 ####################################################
   Download pfSense CD ISO: 
     https://www.pfsense.org/download/
-    Choose: "File Type" = Install, "Architecture" = AMD64 (64-bit), "Mirror" = Frankfurt, Germany
-    
+    Choose: "File Type" = Install
+            "Architecture" = AMD64 (64-bit)
+            "Platform" = CD Image (ISO) Installer
+            "Mirror" = Frankfurt, Germany
+  
+  ----------------------------------
   Create virtual machine
-    All availible number of CPUs, >512MB RAM, 10GB HDD, one or two network cards (if you want
-    only proxy or firewall capability for LAN as well). For VirtualBox, enable: "System->Processor->Enable PAE/NX"
-    and for network adapters in "Network" set it as "Attached to:" = Bridged Adapter, then go to "Advanced->Promiscuous Mode" 
-    and set it to "Allow All". Insert downloaded ISO image into the virtual drive.
+  ----------------------------------
+    All availible number of CPUs, >=512MB RAM (but I actually run it at 360MB with 60-80% RAM utilization),
+    10GB HDD, one or two network cards (if you want only proxy or firewall capability for LAN as well). 
+    For VirtualBox, enable: "System->Processor->Enable PAE/NX".
+    For network adapters (in my case for only one adapter) in "Network" set it as "Attached to:" = Bridged Adapter, 
+    then go to "Advanced->Promiscuous Mode" and set it to "Allow All". Insert downloaded ISO image into the virtual drive.
     
+  ----------------------------------
   Install pfSense
+  ----------------------------------
     Run virtual machine. You will see a bootloader. Wait. After a while you will see a "Configure Console"
     dialog. Accept default options: "Accept these Settings". Then choose "Quick/Easy Install". Then choose
     "OK". Wait. Then choose "Standard Kernel". Then choose "Reboot". Wait. When the "Configure Console"
     dialog appears, in the menubar click on "Devices->CD/DVD devices->Remove disk from virtual drive".
     Choose "Force Unmount". Then in the menubar click on "Machine->Reset". The pfSense is now installed,
     now we need to configure it.
-    
+  
+  ----------------------------------
   Configure pfSense
+  ----------------------------------
     Continuing in the first boot process, you will be prompted with several questions:
     Should VLANs be set up now? n
     Enter the WAN interface name or 'a' for auto-detection (em0 or a): em0
@@ -35,47 +61,456 @@ pfSense
     greated with a main menu and IP address. You should enter this address to 
     the internet browser, which will reveal pfSense web interface, in which the
     majority of things can be configured.
+  
+  ----------------------------------
+  Enable SSH and disable state killing
+  ----------------------------------
+    pfSense can be easily troubleshooted from the web GUI, but it's always better
+    to have SSH access to diagnose problems at deeper level.
+    Under "System->Advanced" in category "Secure Shell" enable "Secure Shell Server".
+    Click on "Save" button on the bottom of the page.
+    Wait, until the page finishes loading. You can then log in via SSH with the same
+    credentials as for the GUI.
     
-  Enable SSH
-    
+    Next thing is disabling state killing, which resolves some instability or lost connection
+    with proxy server later on after few hours.
+    In "System->Advanced->Miscellaneous" find section "Schedules" and check " Schedule States" checkbox
+    (Do not kill connections when schedule expires).
+    Then in section "Gateway Monitoring" uncheck "State Killing on Gateway Failure".
+    Click on "Save" button on the bottom of the page.
+    Wait, until the page finishes loading.
+
     	
 ####################################################
 SQUID
 ####################################################
+  Squid is a proxy server which we will use to monitor and filter network traffic.
+
+----------------------------------
 Install Squid
-  
+----------------------------------
+  "System->Package Manager->Availible Packages" and in the "Search Term" box enter "squid"
+  and press Enter. Then install package "squid". Confirm.
 
+----------------------------------
 Configure Squid
-  
+----------------------------------
+>>Local Cache
+  First of all, we need to prepare caching space for Squid, beacuse Squid is a "caching" proxy :)
+  Find "Hard Disk Cache Size" under "Squid Hard Disk Cache Settings". I set it to 500MB, but you can choose whatever size.
+  Change " Memory Cache Size" under "Squid Memory Cache Settings" and set it to 64 (MB), and 
+  set " Maximum Object Size in RAM" to 64.
+  The size depends on number of users using the proxy, the amount of traffic, that they generate and availible hardware limitations.
+  Other setting can be left on default settings.
+  Click on "Save" button on the bottom of the page. Squid will prepare the cache partition.
+  Wait, until the page finishes loading.
 
+>>General tab
+  Check "Enable Squid Proxy", "Keep Settings/Data".
+  Proxy Interfaces: WAN, loopback (we have only one interface, but normally you want to select only LAN and loopback)
+  Proxy port: we can leave it blank to use default (3128). I changed it to 8118, beacuse I previously ran and had set up Privoxy on other devices and I didn't want to change it on all of them again.
+  Check "Allow Users on Interface".
+  I didn't enable logging for the sake of stability and performance. But you can enable it int "Logging Settings" section.
+  Logs are then availible on "Real Time" tab.
+  Click on "Save" button on the bottom of the page.
+  Wait, until the page finishes loading.
+
+>>ACLs tab
+  In "Allowed Subnets" enter your network address and mask in CIDR format. For me it was "192.168.0.0/25" (without quotes).
+  I also created a small blacklist for blocking ads. Enter this into the "Blacklist" box:
+  
+.googlesyndication.com
+.crashlytics.com
+.google-analytics.com
+.doubleclick.net
+.adskeeper.co.uk
+.bet365.com
+.addthis.com
+.liveadexchanger.com
+.sitelement.sk
+.ads.
+.exponea.com
+harvester.joj.sk
+.adzerk.net
+  
+  In category "Squid Allowed Ports" into box "ACL SafePorts" enter:
+    80 443 22
+  and for "ACL SSLPorts":
+    443 22
+  
+  Click on "Save" button on the bottom of the page.
+  Wait, until the page finishes loading.
+  
+----
+Note
+----
+  You can also edit Blacklist and Whitelist directly via "Diagnostics->Edit File"
+  Blacklist and whitelist file are in directory "/var/squid/acl/".
+  There you can enter larger amount of rules and URLs than in web GUI,
+  beacuse when you paste a large list of URLs in whitelist/blacklist, the GUI will NOT save the changes.
+  
+----------------------------------
 Test Squid
-  
-
+----------------------------------
+  Set web browsers or operating systems to use proxy.
+    Firefox
+      Menu->Options->Advanced->Network->Connection: Configure how Firefox connects to the Internet-> Settings...
+      > Select "Manual proxy configuration" and enter the proxy server IP and port: IP address of pfSense and port (default is 3128). For convenience we can check "Use this proxy server for all protocols". 
+      > Or select "Use system settings" which uses the proxy server of the operating system. Then you need to configure
+      proxy in the operating system.
+      Press Enter. The changes are applied immediately.
+      
+    Opera
+      On Windows it opens proxy dialog window, on Linux you have to create a script with which we can force Opera to use
+      our proxy server. Script:
+      
+#!/bin/bash
+opera --proxy-server="192.168.0.2:8118"
+    
+    Windows 10
+      Start->Settings->Network & Internet->Proxy.
+      Under "Manual proxy setup" enable "Use proxy server".
+      In the "Address" field enter IP address of the proxy server (IP address of pfSense).
+      In the "Port" field enter the port, on which the proxy server listens
+      
+    Linux
+      Haven't bothered :) I rather set it up in browsers for the sake of simplicity.
+    
 
 ####################################################
 SQUIDGUARD
 ####################################################
-  SquidGuard is necessary, beacuse without it Squid alone is not able to filter URLs.
+  SquidGuard is a automated content filtering tool for Squid.
+  It is used to filter larger amount of URLs, beacuse in pfSense, Squid alone is not able to filter
+  large number of URLs (sadly), although Squid is able to whitelist / blacklist small amount of pages.
 
+----------------------------------
 Install SquidGuard
+----------------------------------
+  "System->Package Manager->Availible Packages" and in the "Search Term" box enter "squidGuard"
+  and press Enter. Then install package "squidGuard". Confirm.
 
+----------------------------------
 Configure SquidGuard package
+----------------------------------
+  >>General Settings tab
+    In "Logging options" section disable "Enable GUI log", "Enable log", "Enable log rotation".
+    In "Miscellaneous" section enable "Clean Advertising".
+    In "Blacklist options" section enable "Blacklist". In the "Blacklist URL" enter:
+      http://www.shallalist.de/Downloads/shallalist.tar.gz
+    Click on "Save" button on the bottom of the page.
+    Wait, until the page finishes loading.
   
-
-Everytime we change the configuration of Squid or SquidGuardian, the SquidGuard service needs to be restarted.
-In order to do so, we need to perform the "Update procedure", to force the loading of new settings.
-  Update procedure:
-    Uncheck "Enable SquidGuard". This disables SquidGuard.
-    Click on "Save" button on the bottom of the page. Wait, until the page finishes loading.
-    Click on "Apply" button underneath the checkbox "Enable SquidGuard". Wait, until the page finishes loading.
-    Check "Enable SquidGuard". This enables SquidGuard.
-    Click on "Save" button on the bottom of the page. Wait, until the page finishes loading.
-    Click on "Apply" button underneath the checkbox "Enable SquidGuard". Wait, until the page finishes loading.
+  >>Blacklist tab
+    Keep smashing the download button. Literally. It's a bug, that the list will not download after one click on the "Download"
+    button. You should also see the blacklist URL in the text field. Keep clicking on the "Download" button until it starts
+    downloading it. Just keep clicking ;)
+    After the list is installed, go to "Common ACL" tab.
     
-
+  >>Common ACL
+    You should see next to "Target Rules" the "Target Rules List". Click on the plus sign.
+    Select the categories in "Target Categories", that should be blocked by selecting "deny" in the drop down menu.
+    The last category "Default access [all]" set to "allow".
+    Enable "Log".
+    Click on "Save" button on the bottom of the page.
+    Wait, until the page finishes loading.
+    
+  >>General settings
+    Check the "Enable" checkbox to enable SquidGuard. Do the "Update procedure" (explained below).
+  
+    UPDATE PROCEDURE
+    Everytime we change the configuration of Squid or SquidGuardian, the SquidGuard service needs to be restarted.
+    In order to do so, we need to perform the "Update procedure", to force the loading of new settings.
+      Stepps:
+        -Uncheck "Enable SquidGuard". This disables SquidGuard.
+        -Click on "Save" button on the bottom of the page. Wait, until the page finishes loading.
+        -Click on "Apply" button underneath the checkbox "Enable SquidGuard". Wait, until the page finishes loading.
+        -Check "Enable SquidGuard". This enables SquidGuard.
+        -Click on "Save" button on the bottom of the page. Wait, until the page finishes loading.
+        -Click on "Apply" button underneath the checkbox "Enable SquidGuard". Wait, until the page finishes loading.
+    
+----------------------------------
 Test SquidGuard
+----------------------------------
   Use these sites to check, whether ad-blocking is working. Reload the pages with the proxy server enabled and disabled
   to see, if ads are blocked by the proxy server.
     
     https://pi-hole.net/pages-to-test-ad-blocking-performance/#
     engadget.com
+    
+####################################################
+To speed things up
+####################################################
+  Enable "DNS Resolver" in "Services->DNS Resolver" and check "Enable DNS resolver".
+  In "Network Interfaces" choose "All".
+  In "Outgoing Network Interfaces" choose "All".
+  The rest of the settings we can leave on default.
+  Click on "Save" button on the bottom of the page.
+  Wait, until the page finishes loading.
+  
+  The pages should now load faster.
+
+####################################################
+Management
+####################################################
+  The SquidGuard should be up an runnig. You set it and forget it.
+  But if you see a page that should load, but is not, or a page that shouldn't load, but it is
+  check the Whitelist or Blacklist fields in Squid ACLs for finer control.
+
+Increasing stability ...
+  Maybe you want to add a cron job, when loading pages is slower over time. This is due to
+  increasing RAM consumption of Squid. I had only 360MB of RAM availible to pfSense.
+  One solution to this is to reboot pfSense once a day. I decided to reboot the (virtual) machine
+  every day at 3:30 AM. I created a cron job to do this for me. This is not needed if you did 
+  a nanoBSD install, as explained in SSD install.
+  
+  Firstly, we need to install cron. Go to "System->Package Manager->Availible Packages".
+  In "Search term" field enter "cron" and press Enter. Wait until the install finishes.
+  
+  Now go to "Services->Cron".
+  Click on "Add" button/tab.
+  I wanted to reboot pfSense every day at 3:30. so I set it up as follows:
+    -Minute:              30
+    -Hour:                3
+    -Day of the Month:    *
+    -Month of the Year:   *
+    -Day of the Week:     *
+    -User:                root
+    -Command:             /sbin/reboot
+    
+  Click on "Save" button on the bottom of the page.
+  Wait, until the page finishes loading.
+  The cron job for pfSense automatic rebooting is now set up and active.
+  
+####################################################
+Tuning
+####################################################
+-------------------------------------------
+  Tunning Squid for more performance.
+-------------------------------------------
+  >"System->Advanced->System Tunables"
+  vfs.read_max: 128
+  kern.ipc.nmbclusters: 32768
+  
+  If any of these variables is not listed, create it via pressing the "New" button.
+  Save, then Apply.
+
+-------------------------------------------
+  SSD tuning
+-------------------------------------------
+  >Disable swap.
+    -Log in into pfSense via SSH.
+    -In the main menu press "8" and hit Enter.
+    -Check if swap is enabled:
+
+swapctl -l
+    
+    Output:
+    
+Device:       1024-blocks     Used:
+/dev/label/swap0   1048572         0
+
+    -In my case, the swap partition is enabled, beacuse it lists the total amount of swap space and amount of used space. If it's not listing swap size, swap is turned off.
+    -The swap partition was listed under Device as "/dev/label/swap0".
+    -Disable swap partition:
+
+swapoff /dev/label/swap0
+
+    -Check if swap has been disabled:
+    
+swapctl -l
+
+    -The command should only list this:
+
+Device:       1024-blocks     Used:
+
+    which means, the swap has been successfuly disabled.
+   
+  >Increase amount of total availible RAM - I think 360MB of RAM is plenty sufficient for my purposes.
+    
+  >Disable all logging (and enable it only when needed)
+    "Status->System Logs->Settings"
+    Uncheck EVERYTHING.
+    Check "Local Logging: Disable writing log files to the local disk"
+    Click on "Reset log files" button. Press "OK".
+    Save.
+  
+  >Use overprovisioning on host system
+    Reserve 20% of your SSD space as unformatted partition. The SSD will then use it to move data around.
+    
+  >Reinstall pfSense in "nanoBSD" mode for embedded systems. In "nanoBSD" mode, pfSense keeps most of the things in RAM, so it spares the SSD/memory card. The I/O operations are also optimized (minimalized).
+  
+####################################################
+Finally ...
+####################################################
+  Don't forget to backup configuration!!!
+  "Diagnostics->Backup & Restore" and click on the button "Download configuration as XML".
+  
+  
+
+
+
+****************************************************
+####################################################
+                   SSD install
+####################################################
+****************************************************
+
+####################################################
+pfSense
+####################################################
+  Download pfSense CD ISO: 
+    https://www.pfsense.org/download/
+    Choose: "File Type" = Install
+            "Architecture" = AMD64 (64-bit)
+            "Platform" = Embedded (nanoBSD)
+            "Console" = VGA (or you can choose Serial, if you can handle it in VirtualBox :D )
+            "Media Size" = 2GB (This is effectivlely the size of your non-volatile storage. I chose 2GB, but it really doesn't matter much. Maybe when you require more packages to be installed)
+            "Mirror" = Frankfurt, Germany
+            
+This will download a compressed IMG archive with preinstalled pfSense that only needs to be configured.
+  
+  ----------------------------------
+  Create virtual machine
+  ----------------------------------
+    All availible number of CPUs, >360MB RAM, 10GB HDD, one or two network cards (if you want
+    only proxy or firewall capability for LAN as well). For VirtualBox, enable: "System->Processor->Enable PAE/NX"
+    and for network adapters (in my case for only one adapter) in "Network" set it as "Attached to:" = Bridged Adapter,
+    then go to "Advanced->Promiscuous Mode" and set it to "Allow All".
+    
+    You can also disable audio and USB ports in virtual machine settings - you won't probably need it.
+    
+    Now go to "Storage". We will continue with making a virtual HDD from our downloaded IMG archive.
+    
+  ----------------------------------
+  Creating virtual HDD
+  ----------------------------------
+    Now we will decompress the file we downloaded earlier. Open a terminal/command prompt.
+    
+    Decompress the .gz to get a plain disk image .img file (you need pfSense-2.0.1-RELEASE-4g-i386-nanobsd_vga.img).
+    For extraction in Linux, I like to use "dtrx" utility. It makes extracting archives so much easier ... :)
+    In Windows use WinRAR or whatever you like :)
+    
+dtrx <name_of_the_pfsense_archive>.img.gz
+    
+    Convert the disk image to a virtual hard disk using this command:
+
+(linux)
+VBoxManage convertfromraw <name_of_the_pfsense_archive>.img <name_of_the_pfsense_archive>.vdi
+
+(windows)
+"C:\Program Files\Oracle\VirtualBox\VBoxManage" convertfromraw <name_of_the_pfsense_archive>.img <name_of_the_pfsense_archive>.vdi
+
+    Move to the same directory as the pfSense virtual machine:
+    
+mv <name_of_the_pfsense_archive>.vdi ~/VirtualBox\ VMs/<name_of_the_pfsense_virtual_machine>
+
+    Don't worry if the .vdi file will be much smaller.
+    It will actually be a dynamic virtual disk, which physically occupies only the amount of data which is not empty.
+  
+  Connect created .vdi disk to the virtual machine. Go to "Settings->Storage", click on existing virtual HDD.
+  Then click on the small HDD icon on the right side. From the drop down menu choose "Choose Virtual Hard Disk File".
+  Navigate to the virtual machine directory and choose the new .vdi file. Press "Open".
+  
+  Close virtual machine setting by clicking on "OK" button.
+  
+  ----------------------------------
+  Configure pfSense
+  ----------------------------------
+  Run the virtual machine. You will see a bootloader. Wait.
+  Continuing in the first boot process, you will be prompted with several questions:
+    Should VLANs be set up now? n
+    Enter the WAN interface name or 'a' for auto-detection (em0 or a): em0
+    Enter the LAN interface name or 'a' for auto-detection: <press Enter>
+    Do you want to proceed?: y
+    Wait a moment, necessary services will be started. After that, you will be
+    greated with a main menu and IP address. You should enter this address to 
+    the internet browser, which will reveal pfSense web interface, in which the
+    majority of things can be configured.
+    
+  The rest is the same as in HDD install.
+	
+####################################################
+SQUID
+####################################################
+  Same as in HDD install.
+  HDD caching doesn't work in nanoBSD install, beacuse the flash storage is read only
+  to increase the lifespan of the storage media.
+    
+####################################################
+SQUIDGUARD
+####################################################
+  Same as in HDD install.
+    
+####################################################
+To speed things up
+####################################################
+  Same as in HDD install.
+
+####################################################
+Management
+####################################################
+  Same as in HDD install, but we don't need to create cron job to restart the pfSense machine daily.
+  It seems, that nanoBSD version runs more stable than regular pfSense installation.
+  
+####################################################
+Tuning
+####################################################
+  Same as in HDD install.
+  We don't need to disable swap, beacuse it's disabled by default :)
+  
+####################################################
+Finally ...
+####################################################
+  Backup ;) Same as in HDD install.
+
+
+
+
+####################################################
+Sources
+####################################################
+(Installing pfSense, Squid, SquidGuard)
+http://www.shalla.de/Info/blacklists.html
+https://doc.pfsense.org/index.php/Installing_pfSense
+https://forum.pfsense.org/index.php?topic=46351.0
+https://doc.pfsense.org/index.php/SquidGuard_package
+https://www.youtube.com/watch?v=ledv33t6SNE
+https://www.youtube.com/watch?v=h97J70hzcP0
+https://www.howtoforge.com/pfsense-squid-squidguard-traffic-shaping-tutorial
+https://forum.pfsense.org/index.php?topic=110015.msg618972#msg618972
+https://www.youtube.com/watch?v=H-6_13P8pS8
+https://forum.pfsense.org/index.php?topic=112335.0    (This pointed me to enable DNS Resolver)
+https://doc.pfsense.org/index.php/Setup_Squid_as_a_Transparent_Proxy
+https://turbofuture.com/internet/URL-Filtering-How-To-Configure-SquidGuard-in-pfSense
+https://forum.pfsense.org/index.php?topic=50372.msg268237#msg268237   (disabling state killing solved problems with instability)
+https://turbofuture.com/internet/Intercepting-HTTPS-Traffic-Using-the-Squid-Proxy-in-pfSense
+https://stackoverflow.com/questions/38245867/mistaken-squid-proxy-regex-%E2%86%92-stackoverflow
+http://wiki.squid-cache.org/SquidFaq/SquidAcl#Squid_doesn.27t_match_my_subdomains
+https://stackoverflow.com/questions/5185983/delete-all-lines-starting-with-or-in-notepad
+https://stackoverflow.com/questions/3866034/removing-empty-lines-in-notepad
+https://doc.pfsense.org/index.php/HOWTO_enable_SSH_access
+http://darnitol.blogspot.sk/2012/01/pfsense-and-squid-proxy-managing-ram.html
+https://forum.pfsense.org/index.php?topic=23569.0
+https://calomel.org/cron_at.html
+
+(nanoBSD install)
+https://superuser.com/questions/554862/how-to-convert-img-to-usable-virtualbox-format
+https://forum.pfsense.org/index.php?topic=47306.0
+
+(Tuning)
+https://doc.pfsense.org/index.php/Squid_Package_Tuning
+https://doc.pfsense.org/index.php/Tuning_and_Troubleshooting_Network_Cards
+https://forum.pfsense.org/index.php?topic=61403.0
+https://forum.pfsense.org/index.php?topic=34381.0
+https://forums.freebsd.org/threads/20663/
+https://doc.pfsense.org/index.php/Firewall_Logs
+
+---------------------------------------
+Other interesting, not tested, sources:
+---------------------------------------
+https://pyronexus.com/2017/01/13/blocking-adverts-with-squid-proxy/
+https://github.com/jamesmacwhite/squidguard-adblock
+https://forum.pfsense.org/index.php?topic=80301.0
+https://forum.pfsense.org/index.php?topic=19756.0
+http://www.squidguard.org/blacklists.html
