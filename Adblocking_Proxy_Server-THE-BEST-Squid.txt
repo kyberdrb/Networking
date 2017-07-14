@@ -1,0 +1,357 @@
+======================================================
+INTRO
+======================================================
+
+We will use Squid proxy server to filter out web content (HTTP and HTTPS),
+especially advertisments.
+
+I achieved best results on a real system, beacuse virtualization (tested only on 
+VirtualBox 5.1) causes weird things (freezing, no response, instability). 
+Therefore I recomment to install Squid on a native system to prevent these issues.
+
+======================================================
+PREREQUIREMENTS
+======================================================
+>DEBIAN
+  su -
+  apt-get update && apt-get upgrade && apt-get install aptitude sudo nano curl iptables tcpdump
+  usermod -aG sudo squid
+  exit
+  exit #should logout from user account
+
+>ARCH
+  no additional commands
+  
+======================================================
+SETTING STATIC IP ADDRESS
+======================================================
+
+>DEBIAN
+#log in as user (in my case "squid")
+  sudo nano /etc/network/interfaces
+
+************************************************************************
+************************************************************************
+
+# This file describes the network interfaces available on your system
+# and how to activate them. For more information, see interfaces(5).
+
+source /etc/network/interfaces.d/*
+
+# The loopback network interface
+auto lo
+iface lo inet loopback
+
+# The primary network interface
+allow-hotplug enp0s3
+iface enp0s3 inet static
+        address 192.168.0.4
+        netmask 255.255.255.128
+        broadcast 192.168.0.127
+        gateway 192.168.0.1
+        dns-nameservers 8.8.8.8 8.8.4.4
+
+
+>ARCH
+  Set up static IP address via NetworkManager or other network management software.
+  I used NetworkManager.
+************************************************************************
+************************************************************************
+After setting a static IP addres on the operating system, reboot:
+
+  sudo reboot
+
+  
+======================================================
+SQUID INSTALLATION
+======================================================
+
+>DEBIAN
+  # Install packages, squid3, squid3-common = proxy, locate = search utility, net-tools = netstat
+  sudo aptitude install squid3 squid3-common locate net-tools
+  sudo updatedb                          # index files for locate
+  sudo update-rc.d squid enable          # enable starting after boot
+  sudo netstat -plant | grep squid       # check if squid is listening on default port 3128
+
+>ARCH  
+  sudo pacman -S squid
+
+  
+======================================================
+SQUID CONFIGURATION
+======================================================
+>DEBIAN & ARCH (it's the same on both ;) )
+
+  cp sudo cp squid.conf squid.conf.orig
+  su -c "sed -e 's/#.*$//' -e '/^$/d' squid.conf.orig > squid.conf"
+  sudo nano /etc/squid/squid.conf
+
+Paste there this config (without the stars, of course :) ).
+I used the default configuration file, which I edited.
+Comments with two equal signs, all capital letters and the commands underneath
+them have been added/edited/commented by me.
+
+************************************************************************
+************************************************************************
+
+#
+# Recommended minimum configuration:
+#
+
+# Example rule allowing access from your local networks.
+# Adapt to list your (internal) IP networks from where browsing
+# should be allowed
+acl localnet src 10.0.0.0/8     # RFC1918 possible internal network
+acl localnet src 172.16.0.0/12  # RFC1918 possible internal network
+acl localnet src 192.168.0.0/16 # RFC1918 possible internal network
+acl localnet src fc00::/7       # RFC 4193 local private network range
+acl localnet src fe80::/10      # RFC 4291 link-local (directly plugged) machines
+
+acl SSL_ports port 443
+acl Safe_ports port 80          # http
+acl Safe_ports port 21          # ftp
+acl Safe_ports port 443         # https
+acl Safe_ports port 70          # gopher
+acl Safe_ports port 210         # wais
+acl Safe_ports port 1025-65535  # unregistered ports
+acl Safe_ports port 280         # http-mgmt
+acl Safe_ports port 488         # gss-http
+acl Safe_ports port 591         # filemaker
+acl Safe_ports port 777         # multiling http
+acl CONNECT method CONNECT
+
+# ==For my AirMore Wi-Fi file transfer app
+acl Safe_ports port 8081
+
+#
+# Recommended minimum Access Permission configuration:
+#
+
+# ==WHITELISTED DOMAINS
+acl whitelist dstdom_regex -i "/etc/squid/whitelist"
+
+# ==BLACKLISTED DOMAINS
+acl blacklist dstdom_regex -i "/etc/squid/blacklist"
+
+# ==DISABLE CACHING
+cache deny all
+
+# ==ALLOW WHITELISTED DOMAINS
+http_access allow whitelist
+
+# ==DENY BLACKLISTED DOMAINS
+http_access deny blacklist
+
+# Deny requests to certain unsafe ports
+http_access deny !Safe_ports
+
+# Deny CONNECT to other than secure SSL ports
+http_access deny CONNECT !SSL_ports
+
+# Only allow cachemgr access from localhost
+http_access allow localhost manager
+http_access deny manager
+
+# We strongly recommend the following be uncommented to protect innocent
+# web applications running on the proxy server who think the only
+# one who can access services on "localhost" is a local user
+#http_access deny to_localhost
+
+#
+# INSERT YOUR OWN RULE(S) HERE TO ALLOW ACCESS FROM YOUR CLIENTS
+#
+
+# Example rule allowing access from your local networks.
+# Adapt localnet in the ACL section to list your (internal) IP networks
+# from where browsing should be allowed
+http_access allow localnet
+http_access allow localhost
+
+# And finally deny all other access to this proxy
+http_access deny all
+
+# Squid normally listens to port 3128
+http_port 3128
+
+# ==DISABLE CACHING
+# Uncomment and adjust the following to add a disk cache directory.
+#cache_dir ufs /var/cache/squid 100 16 256
+
+# Leave coredumps in the first cache dir
+coredump_dir /var/cache/squid
+
+# ==DON'T REFRESH THE CACHE - I DISABLED IT :D
+#
+# Add any of your own refresh_pattern entries above these.
+#
+#refresh_pattern ^ftp:           1440    20%     10080
+#refresh_pattern ^gopher:        1440    0%      1440
+#refresh_pattern -i (/cgi-bin/|\?) 0     0%      0
+#refresh_pattern .               0       20%     4320
+
+
+
+************************************************************************
+************************************************************************
+  
+
+Save and exit.
+
+Create file "blacklist_user", which will contain blocking URL/domain regex
+
+  sudo nano /etc/squid/blacklist_user
+  
+Enter this content for example:
+
+************************************************************************
+************************************************************************
+
+(^|\.)adx\.zdravie\.sk$
+(^|\.)ads\.linkedin\.com$
+(^|\.)crittercism\.com$
+(^|\.)adskeeper.*$
+(^|\.)2517d\.v\.fwmrm\.net$
+(^|\.)2975c\.v\.fwmrm\.net$
+(^|\.)ad\.doubleclick\.net$
+(^|\.)adclick\.g\.doubleclick\.net$
+(^|\.)adlog\.com$\.com$
+(^|\.)adservices\.google\.com$
+(^|\.)bs\.serving-sys\.com$
+(^|\.)clk\.pointroll\.com$
+(^|\.)cnbc7\.com$
+(^|\.)csi\.gstatic\.com$
+(^|\.)ctxt\.tribalfusion\.com$
+(^|\.)files\.adform\.net$
+(^|\.)googleads\.g\.doubleclick\.net$
+(^|\.)googleadservices\.com$
+(^|\.)googlesyndication\.com$
+(^|\.)intellitxt\.com$
+(^|\.)lightningcast\.com$
+(^|\.)mm\.chitika\.net$
+(^|\.)pagead2\.googlesyndication\.com$
+(^|\.)pubads\.g\.doubleclick\.net$
+(^|\.)s0\.2mdn\.net$
+(^|\.)service\.innovid\.com$
+(^|\.)stats\.tubemogul\.com$
+(^|\.)youtube-nocookie\.com$
+
+
+************************************************************************
+************************************************************************
+
+We're going to make a script to merge the downloaded blacklists and user blacklist
+together into one file:
+
+  sudo nano /etc/squid/update_blacklist.sh
+
+************************************************************************
+************************************************************************
+
+#!/bin/bash
+curl -sS -L --compressed "https://pgl.yoyo.org/as/serverlist.php?hostformat=squ$
+cat /etc/squid/blacklist_user >> /etc/squid/blacklist
+squid -k reconfigure
+systemctl stop squid.service
+systemctl start squid.service
+#sudo systemctl status squid.service
+
+************************************************************************
+************************************************************************
+
+Save and exit.
+
+  chmod +x /etc/squid/update_blacklist.sh
+  sudo /etc/squid/update_blacklist.sh
+
+Squid will be reconfigured and restarted. The status of the service will be 
+shown afterwards.
+
+Set up Squid to start after boot
+
+  sudo systemctl enable squid.service
+
+Now set up a client operating system / browser with this proxy.
+We can check, if it is working by monitoring the log which captures the traffic 
+that is passing through the proxy server:
+
+  sudo tail -f /var/log/squid/access.log
+
+
+
+Configure clients to use the proxy server. I changed proxy setting in Firefox to test
+the Squid3 proxy server. As soon as it is configured, reload a arbitrary page. You 
+should see the log file changing.  
+  
+REGEX
+useful, when blocking individual domains
+
+Filter every domain and subdomain and URL containing this regex e.g.
+
+.*somedomain\.com\/*.*
+.*somedomain\.com.*		#simplified
+.*somedomain.*		    #even more simplified
+
+Test your regex on https://regex101.com/ ;)
+
+
+TODO - Remove white noise from easylist and convert it to Squid compatible format.
+^[[@|#!].*
+
+^\[.*
+^!.*
+
+^&.*
+^-.*
+^\+.*
+.*#.*
+.*,.*
+.*:.*
+.*\^.*
+.*_.*
+.*[=\?].*
+\n\r            # remove all empty lines
+
+
+======================================================
+AUTOMATIC BLACKLIST UPDATING
+======================================================
+>DEBIAN & ARCH (it's the same on both ;) )
+
+Using crontab to automate blacklists update
+
+  sudo pacman -S cronie
+  su -c "EDITOR=nano crontab -e"
+
+This cron job will be executed every first day of a month at 3:00 AM.
+minutes:      0  (at 0th minute)
+hour:         3  (and at 3rd hour)
+date:         1  (and at 1st day of a month)
+month:        *  (and every month)
+day of week:  *  (or every day - day doesn't matter)
+
+Resulting command looks like this:
+
+
+  0 3 1 1-12 * /usr/bin/sh /etc/squid/update_blacklist.sh > /etc/squid/cronjob.txt
+
+
+Save and exit.
+Start cronie service. Without it all cron jobs are inactive:
+
+  sudo systemctl start cronie.service
+  sudo systemctl enable cronie.service
+
+Done :D
+
+======================================================
+SOURCES
+======================================================
+https://www.youtube.com/watch?v=j7rrHHR0qYw
+https://askubuntu.com/questions/161489/how-to-configure-a-blacklist-in-squid-3
+https://stackoverflow.com/questions/3350223/sed-remove-and-empty-lines-with-one-sed-command
+http://wiki.squid-cache.org/SquidFaq/ConfiguringSquid
+https://regex101.com/
+http://youtubeaddomains.blogspot.sk/
+https://wiki.archlinux.org/index.php/cron
+http://www.adminschoice.com/crontab-quick-reference
+https://www.youtube.com/watch?v=ljgvo2jM234
