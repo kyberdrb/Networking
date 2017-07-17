@@ -1,5 +1,12 @@
 Adblocking Proxy: pfSense + Squid + SquidGuard
 
+####################################################
+                 !!! WARNING !!!
+I really recommend installing pfSense on a real 
+hardware, beacuse in ViirtualBox is VERY unstable!
+                 !!! WARNING !!!
+####################################################
+
 pfSense provides a centralized solution to control network traffic.
 With combination with Squid and SquidGuard it is able to block HTTP
 and HTTPS URLs, unlike Privoxy, which I used previously.
@@ -470,6 +477,10 @@ Finally ...
 ####################################################
 Sources
 ####################################################
+(Best tutorial ever - How to setup a pfSense Router with Wireless - Jakk Tutorials
+check this out first! ;) )
+https://youtu.be/52xEkwfuFfo
+
 (Installing pfSense, Squid, SquidGuard)
 http://www.shalla.de/Info/blacklists.html
 https://doc.pfsense.org/index.php/Installing_pfSense

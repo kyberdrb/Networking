@@ -1,0 +1,28 @@
+How to convert a webcam into IP camera  
+
+-Download Yawcam from http://home.bitcom.se/yawcam_files/yawcam_install.exe  
+-Install Yawcam  
+-Open Yawcam  
+-Connect webcam  
+-Go to Settings->Detect video devices  
+-Select "USB Video Device" and press OK  
+-Go to Setting->Edit Settings->Output->Stream  
+  -Port: 8081  
+  -Stream type: JavaScript  
+  -Scale to: 640x480  
+  -Image quality: 100%  
+  ->Go to "Additional Settings"  
+    -Maximum connections: 2  
+	-ImageProducer rate: 25  
+    -Close Additional Settings  
+-Press OK  
+-In control windows press "Enable" next to "Stream"  
+-Go to web browser and type the (local) IP of your computer with port 8081:  
+  
+  192.168.0.2:8081  
+  
+-Let the stream going :)
+
+Sources:
+https://stackoverflow.com/questions/18554846/live-streaming-from-webcam-to-android-device
+https://www.techwalla.com/articles/how-to-use-a-webcam-as-an-ip-camera

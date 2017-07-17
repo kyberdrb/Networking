@@ -31,7 +31,7 @@ SETTING STATIC IP ADDRESS
   sudo nano /etc/network/interfaces
 
 ************************************************************************
-************************************************************************
+########################################################################
 
 # This file describes the network interfaces available on your system
 # and how to activate them. For more information, see interfaces(5).
@@ -51,12 +51,14 @@ iface enp0s3 inet static
         gateway 192.168.0.1
         dns-nameservers 8.8.8.8 8.8.4.4
 
+########################################################################
+************************************************************************
 
 >ARCH
   Set up static IP address via NetworkManager or other network management software.
   I used NetworkManager.
-************************************************************************
-************************************************************************
+
+  
 After setting a static IP addres on the operating system, reboot:
 
   sudo reboot
@@ -92,7 +94,7 @@ Comments with two equal signs, all capital letters and the commands underneath
 them have been added/edited/commented by me.
 
 ************************************************************************
-************************************************************************
+########################################################################
 
 #
 # Recommended minimum configuration:
@@ -122,6 +124,7 @@ acl CONNECT method CONNECT
 
 # ==For my AirMore Wi-Fi file transfer app
 acl Safe_ports port 8081
+acl Safe_ports port 2333
 
 #
 # Recommended minimum Access Permission configuration:
@@ -191,7 +194,7 @@ coredump_dir /var/cache/squid
 
 
 
-************************************************************************
+########################################################################
 ************************************************************************
   
 
@@ -204,12 +207,21 @@ Create file "blacklist_user", which will contain blocking URL/domain regex
 Enter this content for example:
 
 ************************************************************************
-************************************************************************
+########################################################################
 
+custom list
 (^|\.)adx\.zdravie\.sk$
 (^|\.)ads\.linkedin\.com$
 (^|\.)crittercism\.com$
 (^|\.)adskeeper.*$
+(^|\.)imedia\.cz$
+(^|\.)survicate\.com$
+(^|\.)tawk\.to$
+(^|\.)crashlytics\.com$
+(^|\.)app-measurement\.com$
+(^|\.)graph\.facebook\.com$
+
+youtube adblock
 (^|\.)2517d\.v\.fwmrm\.net$
 (^|\.)2975c\.v\.fwmrm\.net$
 (^|\.)ad\.doubleclick\.net$
@@ -235,36 +247,97 @@ Enter this content for example:
 (^|\.)stats\.tubemogul\.com$
 (^|\.)youtube-nocookie\.com$
 
+windows telemetry
+(^|\.)tsfe\.trafficshaping\.dsp\.mp\.microsoft\.com$
+(^|\.)fe3\.delivery\.mp\.microsoft\.com$
+(^|\.)dl\.delivery\.mp\.microsoft\.com$
+(^|\.)livetileedge\.dsx\.mp\.microsoft\.com$
+(^|\.)win10\.ipv6\.microsoft\.com$
+(^|\.)officeclient\.microsoft\.com$
+(^|\.)tlu\.dl\.delivery\.mp\.microsoft\.com$
+(^|\.)wdcp\.microsoft\.com$
+(^|\.)client\.wns\.windows\.com$
+(^|\.)ocos-office365-s2s\.msedge\.net$
 
-************************************************************************
+
+########################################################################
 ************************************************************************
 
 We're going to make a script to merge the downloaded blacklists and user blacklist
-together into one file:
+together into one file. At the start of the scrip an email will be sent to an email
+account. After the script finishes, another mail will be sent about successfuly
+accomplishing the task. Create file "update_blacklist.sh":
 
   sudo nano /etc/squid/update_blacklist.sh
 
 ************************************************************************
-************************************************************************
+########################################################################
 
 #!/bin/bash
-curl -sS -L --compressed "https://pgl.yoyo.org/as/serverlist.php?hostformat=squ$
+
+# Pass PATH variable with path to this script for cron job
+PATH=/etc/squid/:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+curl --url 'smtp://smtp.seznam.cz:25' --ssl-reqd \
+  --mail-from 'andrejsisi@email.cz' --mail-rcpt 'andrejsisi@email.cz' \
+  --upload-file /etc/squid/mail_started.txt --user 'andrejsisi@email.cz:andrejko18.3.' --insecure
+
+curl -sS -o /etc/squid/blacklist -L --compressed "https://pgl.yoyo.org/as/serverlist.php?hostformat=squid-dstdom-regex&showintro=0&startdate%5Bday%5D=01&startdate%5Bmonth%5D=01&startdate%5Byear%5D=2000&mimetype=plaintext"
 cat /etc/squid/blacklist_user >> /etc/squid/blacklist
 squid -k reconfigure
 systemctl stop squid.service
 systemctl start squid.service
-#sudo systemctl status squid.service
+#systemctl status squid.service
 
-************************************************************************
+curl --url 'smtp://smtp.seznam.cz:25' --ssl-reqd \
+  --mail-from 'andrejsisi@email.cz' --mail-rcpt 'andrejsisi@email.cz' \
+  --upload-file /etc/squid/mail_finished.txt --user 'andrejsisi@email.cz:andrejko18.3.' --insecure
+
+########################################################################
 ************************************************************************
 
 Save and exit.
 
   chmod +x /etc/squid/update_blacklist.sh
   sudo /etc/squid/update_blacklist.sh
+  
+Create file "mail_started.txt":
 
-Squid will be reconfigured and restarted. The status of the service will be 
-shown afterwards.
+  sudo nano /etc/squid/mail_started.txt
+
+************************************************************************
+########################################################################
+
+From: "HTPC" <andrejsisi@email.cz>
+To: "Me" <andrejsisi@email.cz>
+Subject: crontab_update_blacklist_squid started
+
+Squid adblocking blacklist has started updating.
+
+########################################################################
+************************************************************************
+
+Create file "mail_started.txt":
+
+  sudo nano /etc/squid/mail_finished.txt
+
+************************************************************************
+########################################################################
+
+From: "HTPC" <andrejsisi@email.cz>
+To: "Me" <andrejsisi@email.cz>
+Subject: crontab_update_blacklist_squid finished
+
+Squid adblocking blacklist has been updated successfuly.
+
+########################################################################
+************************************************************************
+
+Run the script:
+
+  sudo ./update_blacklist.sh
+
+Squid will be reconfigured and restarted with updated blacklist.
 
 Set up Squid to start after boot
 
@@ -331,9 +404,14 @@ day of week:  *  (or every day - day doesn't matter)
 
 Resulting command looks like this:
 
+  MAILTO=kyberdrb@gmail.com
+  0 3 1 * * /usr/bin/sh /etc/squid/update_blacklist.sh > /etc/squid/cronjob.txt
 
-  0 3 1 1-12 * /usr/bin/sh /etc/squid/update_blacklist.sh > /etc/squid/cronjob.txt
-
+  
+Or you can use following sites to make a cron job:
+  https://crontab-generator.org/
+or
+  https://crontab.guru/
 
 Save and exit.
 Start cronie service. Without it all cron jobs are inactive:
@@ -355,3 +433,9 @@ http://youtubeaddomains.blogspot.sk/
 https://wiki.archlinux.org/index.php/cron
 http://www.adminschoice.com/crontab-quick-reference
 https://www.youtube.com/watch?v=ljgvo2jM234
+https://crontab-generator.org/
+https://crontab.guru/
+https://stackoverflow.com/questions/14722556/using-curl-to-send-email
+https://stackoverflow.com/questions/9744973/is-there-a-way-to-give-a-specific-file-name-when-saving-a-file-via-curl-in-mac-o
+https://www.mozilla.sk/thunderbird/suhrn-udajov-o-postovych-serveroch/
+https://www.wilderssecurity.com/threads/this-is-why-i-hate-windows-10.388340/

@@ -1,0 +1,23 @@
+NoMachine - Remote Desktop software (works on headless computers too)
+
+Install NoMachine
+
+  yaourt -S nomachine
+
+Disable NoMachine after boot. You can enable it via SSH.
+
+  sudo systemctl disable nomachine
+  
+Launch NoMachine server
+
+  sudo systemctl start nomachine
+
+Now we can connect to NoMachine server from the client. If you are behind firewall, allow port 4000.
+
+After you finished work with NoMachine server, disable it:
+
+  sudo systemctl stop nomachine
+
+
+Sources:
+https://wiki.archlinux.org/index.php/NoMachine
