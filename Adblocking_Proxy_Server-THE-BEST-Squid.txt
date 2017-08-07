@@ -2,6 +2,11 @@
 INTRO
 ======================================================
 
+I've put together a network-wide adblock server which uses Squid proxy server under Arch Linux.
+Squid is a caching proxy server. Proxy server acts as a man-in-the-middle between hosts and the gateway.
+Squid can filter content - in our case advertisments - out of the webpages and send it clean to 
+the host computer.
+
 We will use Squid proxy server to filter out web content (HTTP and HTTPS),
 especially advertisments.
 
