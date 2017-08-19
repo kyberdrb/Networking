@@ -431,6 +431,38 @@ Start cronie service. Without it all cron jobs are inactive:
 
 Done :D
 
+=====
+SIDENOTE
+=====
+I created a small script to quickly restart Squid proxy, beacuse I 
+noticed, that it sometimes stops working from no apparent reason.
+
+  sudo nano /etc/quick_restart.sh
+
+
+#!/bin/bash
+
+systemctl stop squid
+
+# Remove log files
+rm -rf /var/log/squid/*
+
+# Flush DNS cache
+nscd -K
+nscd
+
+systemctl start squid
+echo "Squid refreshed :D"
+
+
+  sudo chmod +x quick_restart.sh
+
+When something bad happens (slow or unavailible Internet access), run 
+the script to retain Squid's normal functionality.
+
+  sudo /etc/squid/quick_restart.sh
+
+
 ======================================================
 SOURCES
 ======================================================
