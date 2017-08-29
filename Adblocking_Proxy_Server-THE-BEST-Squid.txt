@@ -289,13 +289,18 @@ curl --url 'smtp://smtp.seznam.cz:25' --ssl-reqd \
 
 curl -sS -o /etc/squid/blacklist -L --compressed "https://pgl.yoyo.org/as/serverlist.php?hostformat=squid-dstdom-regex&showintro=0&startdate%5Bday%5D=01&startdate%5Bmonth%5D=01&startdate%5Byear%5D=2000&mimetype=plaintext"
 cat /etc/squid/blacklist_user >> /etc/squid/blacklist
-squid -k reconfigure
 
 # Delete the files in /var/log/squid but not the directory. Prevent log overgrowing.
 rm -rf /var/log/squid/*
 
+# Flush DNS cache
+nscd -K
+nscd
+
 systemctl stop squid.service
 systemctl start squid.service
+
+squid -k reconfigure
 
 #systemctl status squid.service
 
@@ -452,6 +457,7 @@ nscd -K
 nscd
 
 systemctl start squid
+squid -k reconfigure
 echo "Squid refreshed :D"
 
 
