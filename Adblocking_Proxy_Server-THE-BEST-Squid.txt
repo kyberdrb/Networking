@@ -127,10 +127,6 @@ acl Safe_ports port 591         # filemaker
 acl Safe_ports port 777         # multiling http
 acl CONNECT method CONNECT
 
-# ==For my AirMore Wi-Fi file transfer app
-acl Safe_ports port 8081
-acl Safe_ports port 2333
-
 #
 # Recommended minimum Access Permission configuration:
 #
@@ -468,6 +464,31 @@ the script to retain Squid's normal functionality.
 
   sudo /etc/squid/quick_restart.sh
 
+
+======================================================
+PROXY SETUP IN THE OPERATING SYSTEM
+======================================================
+To enable using proxy server in the operating system:
+
+  sudo nano /etc/enviroment
+
+Add these lines (let's say the proxy server has an IP address of
+192.168.0.3 on port 3128):
+
+http_proxy=http://192.168.0.3:3128/
+https_proxy=http://192.168.0.3:3128/
+ftp_proxy=http://192.168.0.3:3128/
+no_proxy="localhost,127.0.0.1,localaddress,.localdomain.com"
+HTTP_PROXY=http://192.168.0.3:3128/
+HTTPS_PROXY=http://192.168.0.3:3128/
+FTP_PROXY=http://192.168.0.3:3128/
+NO_PROXY="localhost,127.0.0.1,localaddress,.localdomain.com"
+
+Then reboot. After rebooting, the system will use the proxy server for 
+most programs.
+
+To disable using proxy server in the operating system, comment
+added lines in /etc/enviroment. Then reboot.
 
 ======================================================
 SOURCES
