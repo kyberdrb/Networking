@@ -281,7 +281,7 @@ PATH=/etc/squid/:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 curl --url 'smtp://smtp.seznam.cz:25' --ssl-reqd \
   --mail-from 'andrejsisi@email.cz' --mail-rcpt 'andrejsisi@email.cz' \
-  --upload-file /etc/squid/mail_started.txt --user 'andrejsisi@email.cz:andrejko18.3.' --insecure
+  --upload-file /etc/squid/mail_started.txt --user 'andrejsisi@email.cz:<email_account_password>' --insecure
 
 curl -sS -o /etc/squid/blacklist -L --compressed "https://pgl.yoyo.org/as/serverlist.php?hostformat=squid-dstdom-regex&showintro=0&startdate%5Bday%5D=01&startdate%5Bmonth%5D=01&startdate%5Byear%5D=2000&mimetype=plaintext"
 cat /etc/squid/blacklist_user >> /etc/squid/blacklist
@@ -302,7 +302,7 @@ squid -k reconfigure
 
 curl --url 'smtp://smtp.seznam.cz:25' --ssl-reqd \
   --mail-from 'andrejsisi@email.cz' --mail-rcpt 'andrejsisi@email.cz' \
-  --upload-file /etc/squid/mail_finished.txt --user 'andrejsisi@email.cz:andrejko18.3.' --insecure
+  --upload-file /etc/squid/mail_finished.txt --user 'andrejsisi@email.cz:<email_account_password>' --insecure
 
 ########################################################################
 ************************************************************************
