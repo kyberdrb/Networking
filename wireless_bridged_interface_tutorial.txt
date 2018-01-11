@@ -1,0 +1,63 @@
+-Install required packages
+
+  sudo pacman -S ebtables
+
+-Set the IP of your Wi-Fi network adapter to static. I had NetworkManager installed, so I used it to change my IPv4 address to "Manual". You may also check your router configuration for DHCP address pool to not to interfere with it.
+
+-Create bridge interface
+
+  sudo ip link add name br0 type bridge
+  sudo ip link set br0 up
+
+-Now we can start setting up the rules. The syntax for ebtables is almost identical to that of iptables, so if you have experience with iptables, this will look pretty familiar to you.
+
+The first rule we’re going to set up will set the source MAC address to the MAC address of the bridge for all frames sent to the AP.
+
+ # ebtables -t nat -A POSTROUTING -o wlan0 -j snat --to-src $MAC_OF_BRIDGE --snat-arp --snat-target ACCEPT
+
+The next rules will require you to know the MAC and IP of each of the machines behind your bridge. Replace $MAC and $IP with these.
+
+ # ebtables -t nat -A PREROUTING -p IPv4 -i wlan0 --ip-dst $IP -j dnat --to-dst $MAC --dnat-target ACCEPT
+ # ebtables -t nat -A PREROUTING -p ARP -i wlan0 --arp-ip-dst $IP -j dnat --to-dst $MAC --dnat-target ACCEPT
+
+
+Speeding up traffic destinated to the bridge itself
+
+In some situations the bridge not only serves as a bridge box, but also talks to other hosts. Packets that arrive on a bridge port and that are destinated to the bridge box itself will by default enter the iptables INPUT chain with the logical bridge port as input device. These packets will be queued twice by the network code, the first time they are queued after they are received by the network device. The second time after the bridge code examined the destination MAC address and determined it was a locally destinated packet and therefore decided to pass the frame up to the higher protocol stack.[1]
+
+The way to let locally destinated packets be queued only once is by brouting them in the BROUTING chain of the broute table. Suppose br0 has an IP address and that br0's bridge ports do not have an IP address. Using the following rule should make all locally directed traffic be queued only once:
+
+# ebtables -t broute -A BROUTING -d $MAC_OF_BR0 -p ipv4 -j redirect --redirect-target DROP
+
+
+
+
+Final ebtables script
+-MAC address of the bridged interface "br0" can be found out using command "ip link"
+
+#!/bin/bash
+IP=192.168.0.7
+MAC_OF_BRIDGE=8a:1f:0e:3c:97:73
+sudo ebtables -F
+sudo ebtables -t nat -A POSTROUTING -o wlan0 -j snat --to-src $MAC_OF_BRIDGE --snat-arp --snat-target ACCEPT
+sudo ebtables -t nat -A PREROUTING -p IPv4 -i wlan0 --ip-dst $IP -j dnat --to-dst $MAC_OF_BRIDGE --dnat-target ACCEPT
+sudo ebtables -t nat -A PREROUTING -p ARP -i wlan0 --arp-ip-dst $IP -j dnat --to-dst $MAC_OF_BRIDGE --dnat-target ACCEPT
+sudo ebtables -t broute -A BROUTING -d $MAC_OF_BRIDGE -p ipv4 -j redirect --redirect-target DROP
+echo 1 > /proc/sys/net/ipv4/ip_forward
+
+
+
+
+But it doesn't work and I don't know why. It doesn't even add the rules to the "filter" chain.
+The interface shows up in GNS3, but you will never get DHCP address.
+
+
+
+
+Sources:
+  https://wiki.archlinux.org/index.php/Network_bridge#Wireless_interface_on_a_bridge
+  https://wiki.debian.org/BridgeNetworkConnections#Bridging_with_a_wireless_NIC
+
+  http://docs.openvswitch.org/en/latest/faq/issues/
+konkretne
+  "Q: I can’t seem to use Open vSwitch in a wireless network."
